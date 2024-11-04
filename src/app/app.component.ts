@@ -1,13 +1,29 @@
 import { Component } from '@angular/core';
-import { RouterOutlet } from '@angular/router';
 
 @Component({
   selector: 'app-root',
-  standalone: true,
-  imports: [RouterOutlet],
   templateUrl: './app.component.html',
-  styleUrl: './app.component.css'
+  styleUrl: './app.component.css',
 })
 export class AppComponent {
-  title = 'about-me';
+  menuItems = [
+    {
+      label: 'Home',
+      icon: 'pi pi-home',
+      routerLink: 'home'
+    },
+    {
+      label: 'about',
+      icon: 'pi pi-star',
+      routerLink: 'about'
+    },
+    {
+      label: 'Projects',
+      icon: 'pi pi-search',
+    },
+    {
+      label: 'Contact',
+      icon: 'pi pi-envelope',
+    },
+  ];
 }
