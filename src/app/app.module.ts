@@ -10,6 +10,7 @@ import { MenubarModule } from 'primeng/menubar';
 import { CardModule } from 'primeng/card';
 import { AvatarModule } from 'primeng/avatar';
 import { ButtonModule } from 'primeng/button';
+import { ProjectsModule } from './pages/projects/projects.module';
 
 @NgModule({
   imports: [
@@ -20,9 +21,10 @@ import { ButtonModule } from 'primeng/button';
     MenubarModule,
     CardModule,
     AvatarModule,
-    ButtonModule
+    ButtonModule,
+    ProjectsModule,
   ],
   declarations: [AppComponent, HomeComponent],
-  bootstrap: [AppComponent]
+  bootstrap: [AppComponent],
 })
 export class AppModule {}

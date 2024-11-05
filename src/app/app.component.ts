@@ -21,6 +21,7 @@ export class AppComponent {
     {
       label: 'Projects',
       icon: 'ph ph-kanban',
+      routerLink: 'projects'
     },
   ];
 }

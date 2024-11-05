@@ -23,3 +23,16 @@ body {
   line-height: 0.6666em;
   vertical-align: -0.075em;
 }
+
+.central-column {
+  width: 83.3333%; /* col-10 */
+  display: flex; /* flex */
+  flex-direction: column; /* flex-column */
+  align-items: center; /* align-items-center */
+}
+
+@media (min-width: 768px) { /* md:col-6 */
+  .central-column {
+    width: 50%;
+  }
+}
