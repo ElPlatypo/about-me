@@ -1,4 +1,5 @@
 import { Component } from '@angular/core';
+import { MenuItem } from 'primeng/api';
 
 @Component({
   selector: 'app-root',
@@ -6,24 +7,20 @@ import { Component } from '@angular/core';
   styleUrl: './app.component.css',
 })
 export class AppComponent {
-  menuItems = [
+  menuItems: MenuItem[] = [
     {
       label: 'Home',
-      icon: 'pi pi-home',
+      icon: 'ph ph-house',
       routerLink: 'home'
     },
     {
       label: 'about',
-      icon: 'pi pi-star',
+      icon: 'ph ph-identification-card',
       routerLink: 'about'
     },
     {
       label: 'Projects',
-      icon: 'pi pi-search',
-    },
-    {
-      label: 'Contact',
-      icon: 'pi pi-envelope',
+      icon: 'ph ph-kanban',
     },
   ];
 }

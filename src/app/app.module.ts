@@ -9,6 +9,7 @@ import { RouterModule } from '@angular/router';
 import { MenubarModule } from 'primeng/menubar';
 import { CardModule } from 'primeng/card';
 import { AvatarModule } from 'primeng/avatar';
+import { ButtonModule } from 'primeng/button';
 
 @NgModule({
   imports: [
@@ -19,6 +20,7 @@ import { AvatarModule } from 'primeng/avatar';
     MenubarModule,
     CardModule,
     AvatarModule,
+    ButtonModule
   ],
   declarations: [AppComponent, HomeComponent],
   bootstrap: [AppComponent]
