@@ -29,6 +29,7 @@ body {
   display: flex; /* flex */
   flex-direction: column; /* flex-column */
   align-items: center; /* align-items-center */
+  gap: 1rem;
 }
 
 @media (min-width: 768px) { /* md:col-6 */

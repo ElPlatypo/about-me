@@ -1,4 +1,5 @@
-import { Component, input } from '@angular/core';
+import { Component, inject, input } from '@angular/core';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-post',
@@ -6,7 +7,14 @@ import { Component, input } from '@angular/core';
   styleUrl: './post.component.css'
 })
 export class PostComponent {
+  private router = inject(Router);
+
   title = input.required<string>();
   date = input.required<string>();
   image = input.required<string>();
+  postId = input.required<number>();
+
+  navigateToProjectPage(postId: number) {
+    this.router.navigate(['projects', postId])
+  }
 }
