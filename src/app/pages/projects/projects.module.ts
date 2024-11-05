@@ -1,13 +1,13 @@
 import { NgModule } from '@angular/core';
 
 import { CommonModule } from '@angular/common';
-import { MenubarModule } from 'primeng/menubar';
-import { CardModule } from 'primeng/card';
 import { AvatarModule } from 'primeng/avatar';
 import { ButtonModule } from 'primeng/button';
-import { ProjectsComponent } from './projects.component';
-import { PostPageComponent } from './post-page/post-page.component';
+import { CardModule } from 'primeng/card';
+import { MenubarModule } from 'primeng/menubar';
 import { PostComponent } from './post/post.component';
+import { ProjectsComponent } from './projects.component';
+import { NoaaImagesComponent } from './posts/noaa-images/noaa-images.component';
 
 @NgModule({
   imports: [
@@ -17,7 +17,7 @@ import { PostComponent } from './post/post.component';
     AvatarModule,
     ButtonModule,
   ],
-  declarations: [ProjectsComponent, PostComponent, PostPageComponent],
-  exports: [ProjectsComponent, PostComponent, PostPageComponent],
+  declarations: [ProjectsComponent, PostComponent, NoaaImagesComponent],
+  exports: [ProjectsComponent, PostComponent, NoaaImagesComponent],
 })
 export class ProjectsModule {}

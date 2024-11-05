@@ -1,9 +1,9 @@
-import { NgModule } from '@angular/core';
+import { Component, NgModule } from '@angular/core';
 import { RouterModule } from '@angular/router';
 import { HomeComponent } from './pages/home/home.component';
 import { AboutComponent } from './pages/about/about.component';
 import { ProjectsComponent } from './pages/projects/projects.component';
-import { PostPageComponent } from './pages/projects/post-page/post-page.component';
+import { NoaaImagesComponent } from './pages/projects/posts/noaa-images/noaa-images.component';
 
 @NgModule({
   imports: [
@@ -26,8 +26,8 @@ import { PostPageComponent } from './pages/projects/post-page/post-page.componen
               component: ProjectsComponent,
             },
             {
-              path: ':id',
-              component: PostPageComponent,
+              path: 'noaa-images',
+              component: NoaaImagesComponent,
             },
             { path: '', redirectTo: 'list', pathMatch: 'full' },
           ]

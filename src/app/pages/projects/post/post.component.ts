@@ -12,9 +12,9 @@ export class PostComponent {
   title = input.required<string>();
   date = input.required<string>();
   image = input.required<string>();
-  postId = input.required<number>();
+  postRoute = input.required<string>();
 
-  navigateToProjectPage(postId: number) {
-    this.router.navigate(['projects', postId])
+  navigateToProjectPage(postRoute: string) {
+    this.router.navigate(['projects', postRoute])
   }
 }
