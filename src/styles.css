@@ -6,7 +6,7 @@
 
 @font-face {
   font-family: "Suwannaphum";
-  src: url("/font/Suwannaphum/Suwannaphum-Regular.ttf") format("truetype");
+  src: url("./fonts/Suwannaphum/Suwannaphum-Regular.ttf") format("truetype");
   font-weight: normal;
   font-style: normal;
 }
