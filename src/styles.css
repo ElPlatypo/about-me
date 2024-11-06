@@ -4,6 +4,13 @@
 @import "../node_modules/@phosphor-icons/web/src/regular/style.css";
 @import "../node_modules/@phosphor-icons/web/src/fill/style.css";
 
+@font-face {
+  font-family: "Suwannaphum";
+  src: url("/font/Suwannaphum/Suwannaphum-Regular.ttf") format("truetype");
+  font-weight: normal;
+  font-style: normal;
+}
+
 html {
   background-color: var(--background-color);
 }
@@ -74,4 +81,9 @@ body {
 
 h1 {
   color: var(--primary-color) !important;
+  font-family: 'Suwannaphum';
+}
+
+p, span, h2, h3, h4, h5, h6 {
+  font-family: "Suwannaphum";
 }
