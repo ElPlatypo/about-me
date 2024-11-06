@@ -11,6 +11,17 @@
   font-style: normal;
 }
 
+@font-face {
+  font-family: "Suwannaphum";
+  src: url("fonts/Suwannaphum/Suwannaphum-Bold.ttf") format("truetype");
+  font-weight: bold;
+  font-style: bold;
+}
+
+::ng-deep * {
+  font-family: "Inter var", sans-serif;
+}
+
 html {
   background-color: var(--background-color);
 }
@@ -81,9 +92,15 @@ body {
 
 h1 {
   color: var(--primary-color) !important;
-  font-family: 'Suwannaphum';
+  font-family: "Suwannaphum";
 }
 
-p, span, h2, h3, h4, h5, h6 {
+p,
+span,
+h2,
+h3,
+h4,
+h5,
+h6 {
   font-family: "Suwannaphum";
 }
