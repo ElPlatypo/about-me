@@ -2,6 +2,7 @@
   <div class="col-1 md:col-3"></div>
   <div class="central-column">
     <h1>Getting images straight from polar orbiting satellites</h1>
+    <img src="/videos/noaa.gif" style="width: 100%" />
     <p>
       A while ago, while browsing the internet, I found out that nowadays, with
       a cheap software-defined radio, or SDR, and some know-how, it is possible
@@ -44,8 +45,11 @@
       in the sky, just like the sun and moon, but from north to south. These
       windows where one can have direct line of sight with the satellite are the
       ones where their signal is actually receivable and last about 15 minutes
-      each. One way to quickly find out when and where a NOAA satellite will
-      pass over your location is to use apps like
+      each.
+    </p>
+    <p>
+      One way to quickly find out when and where a NOAA satellite will pass over
+      your location is to use apps like
       <a href="https://github.com/rt-bishop/Look4Sat">Look4Sat</a>. NOAA
       satellites transmit mainly two streams of data: a low-resolution low
       frequency signal at around 137 MHz encoded with a standard called
@@ -65,17 +69,19 @@
         href="https://www.rtl-sdr.com/simple-noaameteor-weather-satellite-antenna-137-mhz-v-dipole"
         >Post</a
       >
-      that goes into more in detail. The antenna alone isn’t enough to receive
-      radio signals, a software-defined radio is also needed to decode the
-      analog radio signal into a digital stream that can be processed by a
-      computer. One of the reasons I held out for a while before starting this
-      project is because just recently simple kits like an RTL-SDR have become
-      incredibly cheap (about 50 Euros or so). And lastly, as far as software
-      goes, there are two requirements, something to find and demodulate the
-      received signal, like <a href="https://www.sdrpp.org/">SDR++</a> an open
-      software solution to drive sdr’s and something to convert the received
-      audio to an actual image. I used
-      <a href="https://noaa-apt.mbernardi.com.ar/">noaa-apt</a>.
+      that goes into more in detail.
+    </p>
+    <p>
+      The antenna alone isn’t enough to receive radio signals, a
+      software-defined radio is also needed to decode the analog radio signal
+      into a digital stream that can be processed by a computer. One of the
+      reasons I held out for a while before starting this project is because
+      just recently simple kits like an RTL-SDR have become incredibly cheap
+      (about 50 Euros or so). And lastly, as far as software goes, there are two
+      requirements, something to find and demodulate the received signal, like
+      <a href="https://www.sdrpp.org/">SDR++</a> an open software solution to
+      drive sdr’s and something to convert the received audio to an actual
+      image. I used <a href="https://noaa-apt.mbernardi.com.ar/">noaa-apt</a>.
     </p>
     <h1>Findings</h1>
     <p>
@@ -95,16 +101,28 @@
       <source src="/videos/sdr-morse.mp4" type="video/mp4" />
     </video>
     <p>
-      I decoded that message as vvv de ik1fjib b ik1fji b jn44mj jn44mj 10 watts
-      erp kkk if you have any idea what could it mean let me know! I live near a
-      city with a big commercial harbour for cargo ships and an airport, by
-      tuning in to the right frequencies it is even possbile to listen to
-      automatic telemetry broadcasts from ships and the chatter of airplane
-      pilots to the control tower during landings and takeoffs. We’re not here
-      for that tho, so after a few attempts i managed to recieve the APT signal
-      i was looking for, the signal is incredibly dirty and drowned in noise,
-      you can barely hear the satellite’s beeping under the static so it is
-      clear that something wasnt completely right in my setup.
+      I decoded that message as
+      <span class="highlight">
+        vvv de ik1fjib b ik1fji b jn44mj jn44mj 10 watts erp kkk
+      </span>
+      if you have any idea what could it mean let me know! I live near a city
+      with a big commercial harbour for cargo ships and an airport, by tuning in
+      to the right frequencies it is even possbile to listen to automatic
+      telemetry broadcasts from ships and the chatter of airplane pilots to the
+      control tower during landings and takeoffs. We’re not here for that tho,
+      so after a few attempts i managed to recieve the APT signal i was looking
+      for, the signal is incredibly dirty and drowned in noise, you can barely
+      hear the satellite’s beeping under the static so it is clear that
+      something wasnt completely right in my setup.
+    </p>
+    <p>
+      Update on the morse code: after talking with a couple of friends, i
+      discovered that <span class="highlight"> ik1fjib </span> is an identifier
+      unique to anyone transmitting with a licence, this one belongs to
+      <a href="https://www.qrz.com/db/IK1FJI/B"> this transmitter tower</a>,
+      <span class="highlight">vvv</span> and
+      <span class="highlight">kkk</span> has something to do with the
+      transmission mode
     </p>
     <video controls style="width: 100%">
       <source src="/videos/sdr-aptdirty.mp4" type="video/mp4" />
@@ -115,7 +133,7 @@
     </p>
     <img src="/images/NOAA18-20230830-1233.png" style="width: 100%" />
     <p>
-      here’s the same image but with country borders oerlayed, to see more
+      here’s the same image but with country borders overlayed, to see more
       clearly.
     </p>
     <img src="/images/NOAA18-20230830-1233-overlay.png" style="width: 100%" />

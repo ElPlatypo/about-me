@@ -32,8 +32,46 @@ body {
   gap: 1rem;
 }
 
-@media (min-width: 768px) { /* md:col-6 */
+@media (min-width: 768px) {
+  /* md:col-6 */
   .central-column {
     width: 50%;
   }
+}
+
+.code-block {
+  font-family: monospace;
+  font-size: large;
+  font-weight: bold;
+  background-color: var(--secondary-color);
+  color: var(--primary-color);
+  padding: 5px;
+  border-radius: 4px;
+  border: 1px solid var(--primary-color);
+  white-space: pre-wrap; /* Preserves spacing and line breaks */
+  display: block; /* Makes it a block element */
+}
+
+.code-snippet {
+  font-family: monospace;
+  font-size: large;
+  font-weight: bold;
+  background-color: var(--secondary-color);
+  color: var(--primary-color);
+  padding: 5px;
+  border-radius: 4px;
+  border: 1px solid var(--primary-color);
+  white-space: pre-wrap; /* Preserves spacing and line breaks */
+  display: inline-block; /* Makes it a block element */
+}
+
+.highlight {
+  font-family: monospace;
+  font-size: large;
+  font-weight: bold;
+  color: var(--primary-color);
+}
+
+h1 {
+  color: var(--primary-color) !important;
 }

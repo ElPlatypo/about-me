@@ -1,0 +1,118 @@
+<div class="grid">
+  <div class="col-1 md:col-3"></div>
+  <div class="central-column">
+    <h1>Particle Simulation</h1>
+    <img src="/images/gridinit.png" style="width: 100%" />
+    <p>
+      This project was part of a course I took at university on physics
+      simulation theory. The goal was to code a program that used Montecarlo’s
+      algorithms and Markov chains to accurately replicate the real behavior of
+      a cloud of equally charged particles, able to affect up to one-distance
+      neighbors and with continuity conditions at the borders. I specifically
+      looked at some parameters of the system that described its behavior in an
+      intuitive way:
+    </p>
+    <ul>
+      <li>
+        Total system energy is the first one. If we imagine two particles that
+        repel each other we can intuitively guess that when we bring those
+        particles close to each other they will gain a certain amount of
+        potential energy ready to be released as soon as we let them go. We can
+        then calculate the total potential energy of the system as a simple sum
+        of every particle’s.
+      </li>
+      <li>
+        System order is a parameter that is dependent on the geometry of the
+        system and can assume specific values, indicating that the system
+        settled on a base state of minimal energy. In our case, it can be either
+        one of three values, representing the disposition in a hexagonal grid
+        exemplified by the following image.
+      </li>
+    </ul>
+    <img src="/images/bstates.png" style="width: 80%" />
+    <h1>Theory</h1>
+    <p>
+      The objective is to evolve a system of particles that move randomly, and
+      for a given number of particles we can define N states that represent any
+      possible configuration of particles in the system. given P<sup>0</sup> a
+      state at the timestep 0 and &Pi; the matrix that contains any possible
+      future state starting from the current one we want a system that evolves
+      like:
+    </p>
+
+    <p>
+      lim<sub>m&rarr;&infin;</sub> P<sup>(0)</sup>&Pi;<sup>m</sup> = P
+      <sup>eq </sup>
+    </p>
+    <p>where &Pi; must be ergodic:</p>
+    <p>
+      (P<sup>m</sup>)<sub>ij</sub> &gt; 0 and (P<sup>n</sup>)<sub>ji</sub> &gt;
+      0,
+    </p>
+    <p>
+      which basically means that from any given state <i>i</i>, we can reach any
+      other state <i>j</i>.
+    </p>
+
+    <p>
+      It must also be aperiodic: &Pi;<sub>i</sub> = 1, which means &Pi;
+      <sub>ij </sub> = 0 for any <i>i</i> &ne; <i>j</i>.
+    </p>
+
+    <p>Given these conditions, we can model our system so that:</p>
+    <p>
+      P<sup>eq</sup><sub>i</sub> = &alpha; e
+      <sup>&minus;(E<sub>i</sub> / K<sub>b</sub>T) </sup>
+    </p>
+
+    <p>
+      where &alpha; is a constant, <i>E<sub>i</sub></i> is the energy at the
+      current configuration, <i>K<sub>b</sub>T</i> is a parameter that controls
+      the disorder predisposition of the system. We can manually change this
+      parameter to observe how easily the system can reach a locally ordered
+      state.
+    </p>
+    <h1>Implementation</h1>
+    <p>
+      Since there was no specific language requested to create this program i
+      decided to use this occasion to learn the basics of
+      <a href="https://www.rust-lang.org/">Rust</a>, a modern language that
+      promises to be incredibly fast if coded correctly. It didnt disappoint, i
+      originally started working on a python implementation but when i switched
+      to rust i immediately noticed a 10-100x improvement on execution time, so
+      i was satisfied with my choice and i decided to press on. A more in depth
+      look at the implementation can be found in the GitHub
+      <a href="https://github.com/ElPlatypo/particle-simulation">page</a>.
+    </p>
+    <h1>Results</h1>
+    <p>
+      Once the program was done i run some tests to see if everything worked
+      correctly. Here you can see a plot of the total enegy of the system over
+      time.
+    </p>
+    <img src="/images/energy.png" style="width: 80%" />
+    <p>
+      Its clear how the system initially moves very quickly to a lower energy
+      state and then it becomes harder and harder to find a global minimum, so
+      it continually gets stuck in local minimi. If we instead look at the order
+      parameter we can see how after some initial instability the system settles
+      on a specific base-state and sticks to it.
+    </p>
+    <img src="/images/order.png" style="width: 80%" />
+    <p>
+      One of the more interesting thing to observe tho is how easily the system
+      reaches an ordered state depending on the K<sub>b</sub>T parameter:
+    </p>
+    <img src="/images/betaj.png" style="width: 80%" />
+    <p>
+      This image contains a batch of different runs, each encoded with a color
+      from blue to red. We can easily see how the system is able to reach an
+      ordered state (indicated by one of the 3 possible sub-states per run
+      reaching a value close to 1 and the other 2 going to 0) only when we set a
+      K<sub>b</sub>T (or betaj) value greater than 2.9, wich reflects it’s real
+      life counterpart, signifying that a correct abstraction of reality was
+      achieved in the program.
+    </p>
+  </div>
+  <div class="col-1 md:col-3"></div>
+</div>

@@ -7,7 +7,6 @@ import { CardModule } from 'primeng/card';
 import { MenubarModule } from 'primeng/menubar';
 import { PostComponent } from './post/post.component';
 import { ProjectsComponent } from './projects.component';
-import { NoaaImagesComponent } from './posts/noaa-images/noaa-images.component';
 
 @NgModule({
   imports: [
@@ -17,7 +16,7 @@ import { NoaaImagesComponent } from './posts/noaa-images/noaa-images.component';
     AvatarModule,
     ButtonModule,
   ],
-  declarations: [ProjectsComponent, PostComponent, NoaaImagesComponent],
-  exports: [ProjectsComponent, PostComponent, NoaaImagesComponent],
+  declarations: [ProjectsComponent, PostComponent],
+  exports: [],
 })
 export class ProjectsModule {}
