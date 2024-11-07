@@ -1,0 +1,106 @@
+<div class="grid">
+  <div class="col-1 md:col-3"></div>
+  <div class="central-column">
+    <h1>Creating Digital Neurons</h1>
+    <app-neural-network-visualizer
+      [layers]="4"
+      [neuronsPerLayer]="[5, 7, 4, 2]"
+      [showWeights]="false"
+      class="w-full"
+    ></app-neural-network-visualizer>
+    <p>
+      After first learning about AI and Machine Learning, I decided that I
+      wanted to know more about the subject. I was incredibly fascinated by it,
+      yet also confused about how these algorithms work. Luckily for me, I found
+      some good resources online that detailed the basics of machine learning,
+      and I’d like to explain them here with a small interactive demo.
+    </p>
+
+    <h2>Basic Building Blocks: Weighted Sums</h2>
+    <p>
+      Although today’s machine learning algorithms are incredibly sophisticated,
+      they can often be broken down to a simple concept: weighted sums. Let's
+      break this down with an example. Imagine we have a series of three numbers
+      A, B, and C, each associated with a "weight" value. Let's call these
+      weights w<sub>A</sub>, w<sub>B</sub>, and w<sub>C</sub>. To calculate the
+      value of C, we could use weighted sums like this:
+    </p>
+    <p>
+      <strong>Equation:</strong> The value of C is calculated by first
+      multiplying A by its weight w<sub>A</sub>, then multiplying B by its
+      weight w<sub>B</sub>, and so forth:
+    </p>
+    <p>C = (A &times; w<sub>A</sub>) &times; w<sub>B</sub></p>
+    <app-neural-network-visualizer
+      [layers]="3"
+      [neuronsPerLayer]="[1, 1, 1]"
+      [showWeights]="true"
+      class="w-full"
+    ></app-neural-network-visualizer>
+    <h2>Processing Multiple Inputs</h2>
+    <p>
+      In machine learning, algorithms usually take multiple inputs instead of a
+      single number. Let’s say our input consists of a set of numbers, like
+      A<sub>1</sub>, A<sub>2</sub>, and A<sub>3</sub>, each with their
+      respective weights w<sub>A1</sub>, w<sub>A2</sub>, and w<sub>A3</sub>. We
+      can compute a new value, B, as the sum of these weighted inputs:
+    </p>
+    <p>
+      <strong>Equation:</strong>
+    </p>
+    <p>
+      B = (A<sub>1</sub> &times; w<sub>A1</sub>) + (A<sub>2</sub> &times;
+      w<sub>A2</sub>) + (A<sub>3</sub> &times; w<sub>A3</sub>)
+    </p>
+    <app-neural-network-visualizer
+      [layers]="3"
+      [neuronsPerLayer]="[3, 1, 1]"
+      [showWeights]="true"
+      class="w-full"
+    ></app-neural-network-visualizer>
+
+    <h2>Expanding to Layers of Neurons</h2>
+    <p>
+      In a neural network, this process can be repeated across multiple steps,
+      or "layers." Each layer is made up of values called "neurons." Suppose the
+      first layer has N neurons (such as A<sub>1</sub>, A<sub>2</sub>, ...,
+      A<sub>N</sub>). If the next layer contains K neurons (say B<sub>1</sub>,
+      B<sub>2</sub>, ..., B<sub>K</sub>), each neuron in the first layer will
+      have K weights associated with it (like w<sub>1A1</sub>, w<sub>2A1</sub>,
+      ..., w<sub>KA1</sub>). These weights are used to compute the values of the
+      next layer.
+    </p>
+    <app-neural-network-visualizer
+      [layers]="3"
+      [neuronsPerLayer]="[3, 3, 3]"
+      [showWeights]="false"
+      class="w-full"
+    ></app-neural-network-visualizer>
+
+    <h2>Controlling Output Ranges with Activation Functions</h2>
+    <p>
+      Both the initial values (such as A<sub>1</sub>, A<sub>2</sub>, ...,
+      A<sub>N</sub>) and the weights in a network can be positive or negative.
+      As these values move through each layer, they may increase or decrease
+      drastically, potentially reaching very large positive or negative numbers.
+      To keep these values within a manageable range, we apply an
+      <strong>activation function</strong> to the output of each layer. An
+      activation function "squeezes" values into a set range, often between 0
+      and 1. For instance, if the output of a layer is very negative, the
+      activation function will return a value close to 0; if it's positive and
+      large, it returns a value closer to 1.
+    </p>
+    <p>
+      With all of this in mind here's the first demo that lets you play with a
+      fixed size network:
+    </p>
+    <app-neural-network-visualizer
+      [layers]="3"
+      [neuronsPerLayer]="[3, 3, 3]"
+      [showWeights]="false"
+      [playgroundMode]="true"
+      class="w-full"
+    ></app-neural-network-visualizer>
+  </div>
+  <div class="col-1 md:col-3"></div>
+</div>

@@ -10,6 +10,7 @@ import { NexusComponent } from './pages/projects/posts/nexus/nexus.component';
 import { NasaImageDownloaderComponent } from './pages/projects/posts/nasa-image-downloader/nasa-image-downloader.component';
 import { CastingAluminumComponentsComponent } from './pages/projects/posts/casting-aluminum-components/casting-aluminum-components.component';
 import { DesktopPsuComponent } from './pages/projects/posts/desktop-psu/desktop-psu.component';
+import { CreatingDigitalNeuronsComponent } from './pages/projects/posts/creating-digital-neurons/creating-digital-neurons.component';
 
 @NgModule({
   imports: [
@@ -58,6 +59,10 @@ import { DesktopPsuComponent } from './pages/projects/posts/desktop-psu/desktop-
             {
               path: 'desktop-psu',
               component: DesktopPsuComponent,
+            },
+            {
+              path: 'creating-digital-neurons',
+              component: CreatingDigitalNeuronsComponent,
             },
             { path: '', redirectTo: 'list', pathMatch: 'full' },
           ]
