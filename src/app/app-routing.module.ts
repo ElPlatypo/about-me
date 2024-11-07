@@ -64,7 +64,7 @@ import { DesktopPsuComponent } from './pages/projects/posts/desktop-psu/desktop-
         },
         //{ path: '**', redirectTo: '/notfound' },
       ],
-      { scrollPositionRestoration: 'enabled', enableViewTransitions: true }
+      { scrollPositionRestoration: 'enabled', enableViewTransitions: true, useHash: true }
     ),
   ],
   exports: [RouterModule],
