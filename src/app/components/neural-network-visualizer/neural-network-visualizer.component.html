@@ -68,7 +68,7 @@
 <div *ngIf="playgroundMode()">
   <div [formGroup]="form" class="w-full flex justify-content-between mb-5">
     <div class="flex flex-column align-items-center">
-      <h3>Layer 1 neurons: {{_neuronsPerLayer()[0]}}</h3>
+      <h3>Layer 1 neurons: {{ _neuronsPerLayer()[0] }}</h3>
       <p-slider
         formControlName="layer1Neurons"
         (onChange)="changeNeurons($event.value, 0)"
@@ -79,7 +79,7 @@
       />
     </div>
     <div class="flex flex-column align-items-center">
-      <h3>Layer 2 neurons: {{_neuronsPerLayer()[1]}}</h3>
+      <h3>Layer 2 neurons: {{ _neuronsPerLayer()[1] }}</h3>
       <p-slider
         formControlName="layer2Neurons"
         (onChange)="changeNeurons($event.value, 1)"
@@ -91,7 +91,7 @@
     </div>
 
     <div class="flex flex-column align-items-center">
-      <h3>Layer 3 neurons: {{_neuronsPerLayer()[2]}}</h3>
+      <h3>Layer 3 neurons: {{ _neuronsPerLayer()[2] }}</h3>
       <p-slider
         formControlName="layer3Neurons"
         (onChange)="changeNeurons($event.value, 2)"
@@ -101,6 +101,27 @@
         styleClass="w-14rem"
       />
     </div>
+  </div>
+  <div class="w-full flex flex-row">
+    <div class="col-6 flex justify-content-center">
+      <h3 class="highlight">
+        <span>Inputs: [ </span>
+        <span *ngFor="let n of neurons()[0]; let i = index"
+          >{{ n | number }}{{ neurons()[0].length - 1 === i ? "" : ", " }}</span
+        >
+        <span> ]</span>
+      </h3>
+    </div>
+    <div class="col-6 flex justify-content-center">
+        <h3 class="highlight">
+          <span>Outputs: [ </span>
+          <span *ngFor="let n of neurons()[2]; let i = index"
+            >{{ n | number }}{{ neurons()[2].length - 1 === i ? "" : ", " }}</span
+          >
+          <span> ]</span>
+        </h3>
+      </div>
+    <div class="col-6 flex justify-content-center"></div>
   </div>
   <div class="w-full flex justify-content-center gap-6">
     <p-button (onClick)="randomizeAndRecalculate()" label="randomize input">
