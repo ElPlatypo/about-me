@@ -1,0 +1,44 @@
+.pixel-grid {
+  display: grid;
+  grid-template-rows: repeat(5, 50px);
+}
+
+.pixel-grid p-toggleButton {
+  width: 50px;
+  height: 50px;
+  margin: 0;
+  padding: 0;
+  border: none;
+  display: inline-grid;
+}
+
+::ng-deep .pixel-grid p-toggleButton .p-button {
+  border-radius: 0px;
+  border: 0;
+}
+
+::ng-deep .pixel-grid .black {
+  background: black;
+  color: white;
+
+  span {
+    background: none;
+  }
+}
+
+::ng-deep .pixel-grid .black span {
+  background: none;
+}
+
+::ng-deep .pixel-grid .white {
+  background: white;
+  color: black;
+
+  span {
+    background: none;
+  }
+}
+
+::ng-deep .pixel-grid .white span {
+  background: none;
+}

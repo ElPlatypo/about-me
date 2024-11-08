@@ -101,6 +101,170 @@
       [playgroundMode]="true"
       class="w-full"
     ></app-neural-network-visualizer>
+    <p>
+      You might be confused right now by all the numbers and struggle to give
+      them a meaning. to cement this example in reality with a real practical
+      usage let's create a network that is able to recognize hand-written
+      numbers.
+    </p>
+    <h2>Recognizing Written Numbers</h2>
+    <p>
+      Imagine we have a small image, 5x5 pixels in size, resulting in 25 total
+      pixels. We’ll assume it’s a black-and-white image, allowing each pixel to
+      be represented by 1 (black) or 0 (white).
+    </p>
+    <div class="flex flex-row justify-content-between w-full">
+      <app-pixel-canvas
+        [initArray]="canvasInits[0]"
+        [showValues]="true"
+      ></app-pixel-canvas>
+      <app-pixel-canvas
+        [initArray]="canvasInits[1]"
+        [showValues]="true"
+      ></app-pixel-canvas>
+      <app-pixel-canvas
+        [initArray]="canvasInits[2]"
+        [showValues]="true"
+      ></app-pixel-canvas>
+    </div>
+    <p>
+      We can "unfold" our 5x5 grid of pixels into a linear array of 25 values,
+      ranging from 0 to 1, and use this as input for a simple neural network.
+    </p>
+    <div
+      class="flex flex-row justify-content-between align-items-center w-full"
+    >
+      <div>
+        <h3>Click on pixels to toggle them</h3>
+        <app-pixel-canvas
+          class="col-4"
+          [initArray]="canvasInits[0]"
+          (outputArray)="processDemo1Output($event)"
+        ></app-pixel-canvas>
+      </div>
+
+      <app-neural-network-visualizer
+        class="col-8"
+        [layers]="4"
+        [neuronsPerLayer]="[25, 10, 10, 10]"
+        [showWeights]="false"
+        [setFirstLayer]="demo1Output()"
+      ></app-neural-network-visualizer>
+    </div>
+    <p>
+      In this demo, you can observe how changing the color of a pixel affects
+      the output of the network. Here, we have 25 neurons as inputs, two hidden
+      layers of 10 neurons each, and a final layer of 10 neurons.
+    </p>
+    <p>
+      The choice of 10 neurons in the output layer is intentional: since we want
+      the network to classify hand-written digits (0 through 9), we need 10
+      possible outputs. Ideally, if a "5" is present in the image, the fifth
+      neuron would have a higher value than the others.
+    </p>
+    <p>
+      However, in real applications, the output isn’t always perfect. Instead of
+      showing a clear answer, the network provides a "confidence" score for each
+      possible digit. The output neuron with the highest value indicates the
+      network's best guess for the digit in the image.
+    </p>
+    <h2>Why Training is Necessary</h2>
+    <p>
+      A neural network is essentially a series of mathematical functions
+      connected in layers, each with weights that influence the output. However,
+      when a network is first created, these weights are set randomly and don't
+      actually "know" anything about the task at hand—whether it's recognizing
+      handwritten numbers or predicting stock prices. This is where
+      <strong>training</strong> becomes essential.
+    </p>
+    <p>
+      During training, the network learns to adjust these weights in order to
+      make accurate predictions. In the example of recognizing handwritten
+      numbers, the network needs to learn patterns in pixel arrangements that
+      correspond to each digit (0 through 9). To achieve this, the network goes
+      through a process of adjustment and feedback that gradually improves its
+      accuracy.
+    </p>
+
+    <h3>How Training Works in Recognizing Handwritten Numbers</h3>
+    <p>
+      Training a neural network typically involves a large dataset of labeled
+      examples, known as <strong>training data</strong>. In our handwritten
+      digit example, the dataset would contain thousands of 5x5 pixel images,
+      each labeled with the correct digit (0-9) it represents.
+    </p>
+    <p>The training process follows these steps:</p>
+    <ol>
+      <li>
+        <p>
+          <strong>Forward Pass:</strong> Each image is fed into the network, and
+          the network processes it to produce an output. In our case, this
+          output is a list of confidence scores for each possible digit (0
+          through 9).
+        </p>
+      </li>
+      <li>
+        <p>
+          <strong>Calculate Error:</strong> The network compares its output to
+          the correct answer (the label for the image). This difference, or
+          <strong>error</strong>, tells the network how far off it was in
+          identifying the digit.
+        </p>
+      </li>
+      <li>
+        <p>
+          <strong>Backward Pass (Backpropagation):</strong> Using a technique
+          called <strong>backpropagation</strong>, the network traces the error
+          back through each layer and calculates how much each weight
+          contributed to the error. This allows the network to adjust the
+          weights to reduce future errors.
+        </p>
+      </li>
+      <li>
+        <p>
+          <strong>Update Weights:</strong> Based on the error, the network
+          adjusts its weights slightly to improve accuracy. This is done using a
+          method called <strong>gradient descent</strong>, which helps the
+          network move toward the optimal set of weights.
+        </p>
+      </li>
+    </ol>
+
+    <p>
+      Through many iterations of this process—repeated for thousands or even
+      millions of images—the network gradually "learns" the patterns associated
+      with each digit. After enough training, it can accurately recognize
+      handwritten numbers, even those it has never seen before. In the final
+      stage, we test the network on new images to check its performance and make
+      further adjustments if needed.
+    </p>
+    <p>
+      In essence, training is what transforms a neural network from a simple
+      mathematical structure into a powerful model that can identify, classify,
+      or predict based on the patterns it has learned. Let's look at this
+      concept in practice, in the next demo you will be able to train a
+      initially randomized network with a dataset of examples i generated:
+    </p>
+    <div class="w-full">
+      <div>
+        
+      </div>
+      <app-pixel-canvas
+        class="col-4"
+        [initArray]="canvasInits[0]"
+        (outputArray)="processDemo1Output($event)"
+      ></app-pixel-canvas>
+    </div>
+    <app-neural-network-visualizer
+      class="w-full"
+      [layers]="4"
+      [neuronsPerLayer]="[25, 10, 10, 10]"
+      [showWeights]="false"
+      [trainMode]="true"
+      [trainingData]="demo2Data"
+      [epochs]="3"
+      [learningRate]="1"
+    ></app-neural-network-visualizer>
   </div>
   <div class="col-1 md:col-3"></div>
 </div>

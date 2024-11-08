@@ -113,14 +113,14 @@
       </h3>
     </div>
     <div class="col-6 flex justify-content-center">
-        <h3 class="highlight">
-          <span>Outputs: [ </span>
-          <span *ngFor="let n of neurons()[2]; let i = index"
-            >{{ n | number }}{{ neurons()[2].length - 1 === i ? "" : ", " }}</span
-          >
-          <span> ]</span>
-        </h3>
-      </div>
+      <h3 class="highlight">
+        <span>Outputs: [ </span>
+        <span *ngFor="let n of neurons()[2]; let i = index"
+          >{{ n | number }}{{ neurons()[2].length - 1 === i ? "" : ", " }}</span
+        >
+        <span> ]</span>
+      </h3>
+    </div>
     <div class="col-6 flex justify-content-center"></div>
   </div>
   <div class="w-full flex justify-content-center gap-6">
@@ -128,5 +128,19 @@
     </p-button>
     <p-button (onClick)="initializeWeights()" label="randomize weights">
     </p-button>
+  </div>
+</div>
+
+<div *ngIf="trainMode()">
+  <div class="w-full flex justify-content-start gap-6">
+    <app-pixel-canvas
+      class="col-4"
+      [initArray]="firstLayerBool()"
+    ></app-pixel-canvas>
+    <p-button
+      (onClick)="trainOnButtonPress()"
+      type="button"
+      label="Start Training"
+    ></p-button>
   </div>
 </div>

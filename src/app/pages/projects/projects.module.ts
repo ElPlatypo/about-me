@@ -9,6 +9,7 @@ import { PostComponent } from '../../components/post/post.component';
 import { ProjectsComponent } from './projects.component';
 import { NeuralNetworkVisualizerComponent } from '../../components/neural-network-visualizer/neural-network-visualizer.component';
 import { CreatingDigitalNeuronsComponent } from './posts/creating-digital-neurons/creating-digital-neurons.component';
+import { PixelCanvasComponent } from '../../components/pixel-canvas/pixel-canvas.component';
 
 @NgModule({
   imports: [
@@ -17,7 +18,8 @@ import { CreatingDigitalNeuronsComponent } from './posts/creating-digital-neuron
     CardModule,
     AvatarModule,
     ButtonModule,
-    NeuralNetworkVisualizerComponent
+    NeuralNetworkVisualizerComponent,
+    PixelCanvasComponent
   ],
   declarations: [ProjectsComponent, PostComponent, CreatingDigitalNeuronsComponent],
   exports: [],

@@ -1,10 +1,100 @@
-import { Component } from '@angular/core';
+import { Component, signal } from '@angular/core';
+import { TRAINING_DATASET } from './dataset';
 
 @Component({
   selector: 'app-creating-digital-neurons',
   templateUrl: './creating-digital-neurons.component.html',
-  styleUrl: './creating-digital-neurons.component.css'
+  styleUrl: './creating-digital-neurons.component.css',
 })
 export class CreatingDigitalNeuronsComponent {
+  canvasInits = [
+    [
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      true,
+      true,
+      true,
+      false,
+      false,
+      true,
+      false,
+      true,
+      false,
+      false,
+      true,
+      false,
+      true,
+      false,
+      false,
+      true,
+      true,
+      true,
+      false,
+    ],
+    [
+      false,
+      true,
+      false,
+      true,
+      false,
+      false,
+      true,
+      false,
+      true,
+      false,
+      false,
+      true,
+      true,
+      true,
+      true,
+      false,
+      false,
+      false,
+      true,
+      false,
+      false,
+      false,
+      false,
+      true,
+      false,
+    ],
+    [
+      false,
+      true,
+      true,
+      true,
+      true,
+      false,
+      false,
+      false,
+      false,
+      true,
+      false,
+      false,
+      false,
+      true,
+      false,
+      false,
+      false,
+      true,
+      false,
+      false,
+      false,
+      false,
+      true,
+      false,
+      false,
+    ],
+  ];
 
+  demo1Output = signal<number[]>([]);
+  processDemo1Output(array: boolean[]) {
+    this.demo1Output.set(array.map(v => v === true ? 1 : 0));
+  }
+
+  demo2Data = TRAINING_DATASET;
 }
