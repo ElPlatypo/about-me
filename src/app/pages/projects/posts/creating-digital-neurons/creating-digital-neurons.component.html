@@ -245,16 +245,6 @@
       concept in practice, in the next demo you will be able to train a
       initially randomized network with a dataset of examples i generated:
     </p>
-    <div class="w-full">
-      <div>
-        
-      </div>
-      <app-pixel-canvas
-        class="col-4"
-        [initArray]="canvasInits[0]"
-        (outputArray)="processDemo1Output($event)"
-      ></app-pixel-canvas>
-    </div>
     <app-neural-network-visualizer
       class="w-full"
       [layers]="4"
