@@ -53,8 +53,8 @@
       w<sub>A2</sub>) + (A<sub>3</sub> &times; w<sub>A3</sub>)
     </p>
     <app-neural-network-visualizer
-      [layers]="3"
-      [neuronsPerLayer]="[3, 1, 1]"
+      [layers]="2"
+      [neuronsPerLayer]="[3, 1]"
       [showWeights]="true"
       class="w-full"
     ></app-neural-network-visualizer>
@@ -72,7 +72,7 @@
     </p>
     <app-neural-network-visualizer
       [layers]="3"
-      [neuronsPerLayer]="[3, 3, 3]"
+      [neuronsPerLayer]="[3, 4, 3]"
       [showWeights]="false"
       class="w-full"
     ></app-neural-network-visualizer>
@@ -96,7 +96,7 @@
     </p>
     <app-neural-network-visualizer
       [layers]="3"
-      [neuronsPerLayer]="[3, 3, 3]"
+      [neuronsPerLayer]="[3, 4, 2]"
       [showWeights]="false"
       [playgroundMode]="true"
       class="w-full"
@@ -148,7 +148,6 @@
         [layers]="4"
         [neuronsPerLayer]="[25, 10, 10, 10]"
         [showWeights]="false"
-        [setFirstLayer]="demo1Output()"
       ></app-neural-network-visualizer>
     </div>
     <p>
@@ -248,12 +247,9 @@
     <app-neural-network-visualizer
       class="w-full"
       [layers]="4"
-      [neuronsPerLayer]="[25, 10, 10, 10]"
+      [neuronsPerLayer]="[25, 25, 25, 10]"
       [showWeights]="false"
       [trainMode]="true"
-      [trainingData]="demo2Data"
-      [epochs]="3"
-      [learningRate]="1"
     ></app-neural-network-visualizer>
   </div>
   <div class="col-1 md:col-3"></div>

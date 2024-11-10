@@ -92,8 +92,8 @@ export class CreatingDigitalNeuronsComponent {
   ];
 
   demo1Output = signal<number[]>([]);
-  processDemo1Output(array: boolean[]) {
-    this.demo1Output.set(array.map(v => v === true ? 1 : 0));
+  processDemo1Output(array: number[]) {
+    this.demo1Output.set(array);
   }
 
   demo2Data = TRAINING_DATASET;

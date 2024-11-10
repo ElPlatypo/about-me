@@ -7,17 +7,17 @@
     preserveAspectRatio="xMidYMid meet"
   >
     <!-- Lines for weights -->
-    <ng-container *ngFor="let layer of neurons(); let i = index">
-      <ng-container *ngIf="i < neurons().length - 1">
+    <ng-container *ngFor="let layer of network.neurons; let i = index">
+      <ng-container *ngIf="i < network.neurons.length - 1">
         <ng-container *ngFor="let neuron of layer; let j = index">
           <ng-container
-            *ngFor="let nextNeuron of neurons()[i + 1]; let k = index"
+            *ngFor="let nextNeuron of network.neurons[i + 1]; let k = index"
           >
             <line
-              [attr.x1]="getNeuronX(i)"
-              [attr.y1]="getNeuronY(j, layer.length)"
-              [attr.x2]="getNeuronX(i + 1)"
-              [attr.y2]="getNeuronY(k, neurons()[i + 1].length)"
+              [attr.x1]="getNeuronX(i, j)"
+              [attr.y1]="getNeuronY(i, j)"
+              [attr.x2]="getNeuronX(i + 1, k)"
+              [attr.y2]="getNeuronY(i + 1, k)"
               [attr.stroke]="getLineColor(i, j, k)"
               [attr.stroke-width]="2"
             />
@@ -32,7 +32,7 @@
                 font-size="12"
                 fill="#ffffff"
               >
-                {{ weights()[i][j][k] | number }}
+                {{ network.weights[i][j][k] | number }}
               </text>
             </ng-container>
           </ng-container>
@@ -41,19 +41,19 @@
     </ng-container>
 
     <!-- Neurons and their values -->
-    <ng-container *ngFor="let layer of neurons(); let i = index">
+    <ng-container *ngFor="let layer of network.neurons; let i = index">
       <ng-container *ngFor="let neuron of layer; let j = index">
         <circle
-          [attr.cx]="getNeuronX(i)"
-          [attr.cy]="getNeuronY(j, layer.length)"
+          [attr.cx]="getNeuronX(i, j)"
+          [attr.cy]="getNeuronY(i, j)"
           [attr.r]="neuronRadius"
           [attr.fill]="getCircleColor(i, j)"
           [attr.border-color]="'#ffffff'"
         />
 
         <text
-          [attr.x]="getNeuronX(i)"
-          [attr.y]="getNeuronY(j, layer.length) + 5"
+          [attr.x]="getNeuronX(i, j)"
+          [attr.y]="getNeuronY(i, j) + 5"
           text-anchor="middle"
           font-weight="bolder"
           font-size="12"
@@ -68,10 +68,10 @@
 <div *ngIf="playgroundMode()">
   <div [formGroup]="form" class="w-full flex justify-content-between mb-5">
     <div class="flex flex-column align-items-center">
-      <h3>Layer 1 neurons: {{ _neuronsPerLayer()[0] }}</h3>
+      <h3>Layer 1 neurons: {{ neuronsPerLayer()[0] }}</h3>
       <p-slider
         formControlName="layer1Neurons"
-        (onChange)="changeNeurons($event.value, 0)"
+        (onChange)="network.changeNeuronsForLayer($event.value, 0)"
         [step]="1"
         [min]="1"
         [max]="5"
@@ -79,10 +79,10 @@
       />
     </div>
     <div class="flex flex-column align-items-center">
-      <h3>Layer 2 neurons: {{ _neuronsPerLayer()[1] }}</h3>
+      <h3>Layer 2 neurons: {{ neuronsPerLayer()[1] }}</h3>
       <p-slider
         formControlName="layer2Neurons"
-        (onChange)="changeNeurons($event.value, 1)"
+        (onChange)="network.changeNeuronsForLayer($event.value, 1)"
         [step]="1"
         [min]="1"
         [max]="5"
@@ -91,10 +91,10 @@
     </div>
 
     <div class="flex flex-column align-items-center">
-      <h3>Layer 3 neurons: {{ _neuronsPerLayer()[2] }}</h3>
+      <h3>Layer 3 neurons: {{ neuronsPerLayer()[2] }}</h3>
       <p-slider
         formControlName="layer3Neurons"
-        (onChange)="changeNeurons($event.value, 2)"
+        (onChange)="network.changeNeuronsForLayer($event.value, 2)"
         [step]="1"
         [min]="1"
         [max]="5"
@@ -106,8 +106,9 @@
     <div class="col-6 flex justify-content-center">
       <h3 class="highlight">
         <span>Inputs: [ </span>
-        <span *ngFor="let n of neurons()[0]; let i = index"
-          >{{ n | number }}{{ neurons()[0].length - 1 === i ? "" : ", " }}</span
+        <span *ngFor="let n of network.neurons[0]; let i = index"
+          >{{ n | number
+          }}{{ network.neurons[0].length - 1 === i ? "" : ", " }}</span
         >
         <span> ]</span>
       </h3>
@@ -115,8 +116,9 @@
     <div class="col-6 flex justify-content-center">
       <h3 class="highlight">
         <span>Outputs: [ </span>
-        <span *ngFor="let n of neurons()[2]; let i = index"
-          >{{ n | number }}{{ neurons()[2].length - 1 === i ? "" : ", " }}</span
+        <span *ngFor="let n of network.neurons[2]; let i = index"
+          >{{ n | number
+          }}{{ network.neurons[2].length - 1 === i ? "" : ", " }}</span
         >
         <span> ]</span>
       </h3>
@@ -124,23 +126,30 @@
     <div class="col-6 flex justify-content-center"></div>
   </div>
   <div class="w-full flex justify-content-center gap-6">
-    <p-button (onClick)="randomizeAndRecalculate()" label="randomize input">
+    <p-button
+      (onClick)="randomizeInputs()"
+      label="randomize input"
+    >
     </p-button>
-    <p-button (onClick)="initializeWeights()" label="randomize weights">
+    <p-button (onClick)="randomizeWeights()" label="randomize weights">
     </p-button>
   </div>
 </div>
 
 <div *ngIf="trainMode()">
-  <div class="w-full flex justify-content-start gap-6">
-    <app-pixel-canvas
+  <div class="w-full flex justify-content-between gap-6">
+    <!-- <app-pixel-canvas
       class="col-4"
-      [initArray]="firstLayerBool()"
-    ></app-pixel-canvas>
-    <p-button
+      [initArray]="network.firstLayerBool()"
+    ></app-pixel-canvas> -->
+    <!-- <p-button
       (onClick)="trainOnButtonPress()"
       type="button"
       label="Start Training"
-    ></p-button>
+    ></p-button> -->
+    <app-pixel-canvas
+      class="col-4"
+      (outputArray)="evaluate($event)"
+    ></app-pixel-canvas>
   </div>
 </div>

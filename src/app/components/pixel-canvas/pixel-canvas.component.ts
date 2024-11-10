@@ -32,7 +32,7 @@ export class PixelCanvasComponent implements OnInit {
   inputSize = computed(() => this.size * this.size);
   indexArray = computed(() => [...Array(this.size).keys()]);
 
-  outputArray = output<boolean[]>();
+  outputArray = output<number[]>();
 
   form: FormGroup;
 
@@ -44,8 +44,9 @@ export class PixelCanvasComponent implements OnInit {
     this.form = group;
 
     this.form.valueChanges.subscribe((_) => {
-      this.outputArray.emit(Object.values(this.form.getRawValue()));
-      console.log(Object.values(this.form.getRawValue()).map(val => val ? 1 : 0))
+      this.outputArray.emit(
+        Object.values(this.form.getRawValue()).map((v) => (v ? 1 : 0))
+      );
     });
   }
 
@@ -57,7 +58,9 @@ export class PixelCanvasComponent implements OnInit {
     for (var i = 0; i < this.initArray().length; i++) {
       this.form.get(i.toString())?.setValue(this.initArray()[i]);
     }
-    this.outputArray.emit(Object.values(this.form.getRawValue()));
+    this.outputArray.emit(
+      Object.values(this.form.getRawValue()).map((v) => (v ? 1 : 0))
+    );
   }
 
   getValues() {
