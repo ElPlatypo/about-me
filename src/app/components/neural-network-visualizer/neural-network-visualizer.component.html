@@ -173,16 +173,16 @@
 <ng-template #trainDemoTemplate>
   <div *ngIf="trainMode()">
     <div class="w-full flex flex-column align-items-center">
-      <p-progressBar class="w-full mb-2" [value]="trainprogress" />
+      <p-progressBar class="w-full mb-2" [value]="trainprogress()" />
       <p-button
         (onClick)="train()"
-        [disabled]="trainprogress > 0"
+        [disabled]="trainprogress() > 0"
         type="button"
       >
         <div Ptemplate="content">
-          @if (trainprogress === 0) {
+          @if (trainprogress() === 0) {
           <h3 class="my-1">Start Training</h3>
-          } @else if (trainprogress > 0 && trainprogress < 100){
+          } @else if (trainprogress() > 0 && trainprogress() < 100){
           <h3 class="my-1">Training In Progress</h3>
           } @else {
             <h3 class="my-1">Training Completed</h3>

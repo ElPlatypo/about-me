@@ -243,8 +243,8 @@
     <span>Test Network</span>
     <span
       *ngIf="
-        trainDemoNetwork.trainprogress > 0 &&
-        trainDemoNetwork.trainprogress < 100
+        trainDemoNetwork.trainprogress() > 0 &&
+        trainDemoNetwork.trainprogress() < 100
       "
     >
       (disabled while training)
@@ -254,8 +254,8 @@
       (outputArray)="trainDemoNetwork.evaluate($event)"
       [size]="7"
       [disabled]="
-        trainDemoNetwork.trainprogress > 0 &&
-        trainDemoNetwork.trainprogress < 100
+        trainDemoNetwork.trainprogress() > 0 &&
+        trainDemoNetwork.trainprogress() < 100
       "
     ></app-pixel-canvas>
   </div>

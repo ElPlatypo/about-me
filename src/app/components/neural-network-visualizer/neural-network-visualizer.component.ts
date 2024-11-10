@@ -67,7 +67,7 @@ export class NeuralNetworkVisualizerComponent implements OnInit {
       },
     ],
   });
-  trainprogress: number = 0;
+  trainprogress = signal<number>(0);
 
   form: any = null;
 
@@ -88,8 +88,8 @@ export class NeuralNetworkVisualizerComponent implements OnInit {
         ],
       };
       this.lossForFraph.set(data);
-      this.trainprogress = Math.round(
-        (loss.length / this.network.opts.epochs) * 100
+      this.trainprogress.set(
+        Math.round((loss.length / this.network.opts.epochs) * 100)
       );
     });
 
@@ -145,7 +145,7 @@ export class NeuralNetworkVisualizerComponent implements OnInit {
     const trainData = NeuralNetworkUtils.generate7by7Dataset();
     this.network.trainingData = trainData;
     this.network.trainNetwork(200);
-    this.trainprogress = 1;
+    this.trainprogress.set(1);
   }
 
   private createForm() {

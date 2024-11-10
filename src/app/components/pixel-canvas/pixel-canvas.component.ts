@@ -31,11 +31,12 @@ export class PixelCanvasComponent implements OnInit {
 
   updatePixels = effect(() => {
     if (this.initArray().length > 0) this.setPixels();
-  })
+  });
 
   disable = effect(() => {
-    if (this.disabled()) this.form.disable()
-  })
+    if (this.disabled()) this.form.disable();
+    else this.form.enable();
+  });
 
   constructor() {
     this.form = new FormGroup({});
@@ -45,7 +46,7 @@ export class PixelCanvasComponent implements OnInit {
     this.initializeGrid();
     if (this.initArray().length > 0) this.setPixels();
 
-    if (this.disabled()) this.form.disable()
+    if (this.disabled()) this.form.disable();
   }
 
   initializeGrid() {
