@@ -3,9 +3,8 @@
   <div class="central-column">
     <h1>Creating Digital Neurons</h1>
     <app-neural-network-visualizer
-      [layers]="4"
       [neuronsPerLayer]="[5, 7, 4, 2]"
-      [showWeights]="false"
+      [neuronsActivations]="['relu', 'relu', 'sigmoid']"
       class="w-full"
     ></app-neural-network-visualizer>
     <p>
@@ -32,9 +31,7 @@
     </p>
     <p>C = (A &times; w<sub>A</sub>) &times; w<sub>B</sub></p>
     <app-neural-network-visualizer
-      [layers]="3"
       [neuronsPerLayer]="[1, 1, 1]"
-      [showWeights]="true"
       class="w-full"
     ></app-neural-network-visualizer>
     <h2>Processing Multiple Inputs</h2>
@@ -53,9 +50,8 @@
       w<sub>A2</sub>) + (A<sub>3</sub> &times; w<sub>A3</sub>)
     </p>
     <app-neural-network-visualizer
-      [layers]="2"
       [neuronsPerLayer]="[3, 1]"
-      [showWeights]="true"
+      [neuronsActivations]="['sigmoid']"
       class="w-full"
     ></app-neural-network-visualizer>
 
@@ -71,9 +67,7 @@
       next layer.
     </p>
     <app-neural-network-visualizer
-      [layers]="3"
       [neuronsPerLayer]="[3, 4, 3]"
-      [showWeights]="false"
       class="w-full"
     ></app-neural-network-visualizer>
 
@@ -95,9 +89,7 @@
       fixed size network:
     </p>
     <app-neural-network-visualizer
-      [layers]="3"
       [neuronsPerLayer]="[3, 4, 2]"
-      [showWeights]="false"
       [playgroundMode]="true"
       class="w-full"
     ></app-neural-network-visualizer>
@@ -134,21 +126,13 @@
     <div
       class="flex flex-row justify-content-between align-items-center w-full"
     >
-      <div>
-        <h3>Click on pixels to toggle them</h3>
-        <app-pixel-canvas
-          class="col-4"
-          [initArray]="canvasInits[0]"
-          (outputArray)="processDemo1Output($event)"
-        ></app-pixel-canvas>
+      <div class="w-full">
+        <app-neural-network-visualizer
+          [neuronsPerLayer]="[25, 10, 10, 10]"
+          [neuronsActivations]="['relu', 'relu', 'sigmoid']"
+          [inputDemo]="true"
+        ></app-neural-network-visualizer>
       </div>
-
-      <app-neural-network-visualizer
-        class="col-8"
-        [layers]="4"
-        [neuronsPerLayer]="[25, 10, 10, 10]"
-        [showWeights]="false"
-      ></app-neural-network-visualizer>
     </div>
     <p>
       In this demo, you can observe how changing the color of a pixel affects
@@ -246,10 +230,10 @@
     </p>
     <app-neural-network-visualizer
       class="w-full"
-      [layers]="4"
-      [neuronsPerLayer]="[25, 25, 25, 10]"
-      [showWeights]="false"
+      [neuronsPerLayer]="[49, 20, 10]"
       [trainMode]="true"
+      [batchSize]="600"
+      [expandHeight]="false"
     ></app-neural-network-visualizer>
   </div>
   <div class="col-1 md:col-3"></div>

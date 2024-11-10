@@ -1,71 +1,106 @@
-<div *ngIf="!loading()" class="card">
-  <svg
-    class="network-visualizer"
-    [attr.width]="'100%'"
-    [attr.height]="'100%'"
-    [attr.viewBox]="'0 0 ' + baseWidth + ' ' + baseHeight"
-    preserveAspectRatio="xMidYMid meet"
-  >
-    <!-- Lines for weights -->
-    <ng-container *ngFor="let layer of network.neurons; let i = index">
-      <ng-container *ngIf="i < network.neurons.length - 1">
-        <ng-container *ngFor="let neuron of layer; let j = index">
-          <ng-container
-            *ngFor="let nextNeuron of network.neurons[i + 1]; let k = index"
-          >
-            <line
-              [attr.x1]="getNeuronX(i, j)"
-              [attr.y1]="getNeuronY(i, j)"
-              [attr.x2]="getNeuronX(i + 1, k)"
-              [attr.y2]="getNeuronY(i + 1, k)"
-              [attr.stroke]="getLineColor(i, j, k)"
-              [attr.stroke-width]="2"
-            />
-
-            <!-- Display Weights at Midpoint (if showWeights is true) -->
-            <ng-container *ngIf="showWeights()">
-              <text
-                [attr.x]="getMidpointX(i, j, i + 1, k)"
-                [attr.y]="getMidpointY(i, j, i + 1, k)"
-                text-anchor="middle"
-                font-weight="bolder"
-                font-size="12"
-                fill="#ffffff"
+<div class="w-full flex grid align-items-center">
+  <div *ngIf="inputDemo()" class="col-4">
+    <h3>Click on pixels to toggle them</h3>
+    <app-pixel-canvas (outputArray)="evaluate($event)"></app-pixel-canvas>
+  </div>
+  <div [class]="inputDemo() ? 'col-8' : 'col-12'">
+    <div *ngIf="!loading()" class="card">
+      <svg
+        class="network-visualizer"
+        [attr.width]="'100%'"
+        [attr.height]="'100%'"
+        [attr.viewBox]="'0 0 ' + baseWidth + ' ' + baseHeight"
+        preserveAspectRatio="xMidYMid meet"
+      >
+        <!-- Lines for weights -->
+        <ng-container *ngFor="let layer of network.neurons; let i = index">
+          <ng-container *ngIf="i < network.neurons.length - 1">
+            <ng-container *ngFor="let neuron of layer; let j = index">
+              <ng-container
+                *ngFor="let nextNeuron of network.neurons[i + 1]; let k = index"
               >
-                {{ network.weights[i][j][k] | number }}
-              </text>
+                <line
+                  [attr.x1]="getNeuronX(i, j)"
+                  [attr.y1]="getNeuronY(i, j)"
+                  [attr.x2]="getNeuronX(i + 1, k)"
+                  [attr.y2]="getNeuronY(i + 1, k)"
+                  [attr.stroke]="getLineColor(i, j, k)"
+                  [attr.stroke-width]="2"
+                />
+
+                <!-- Display Weights at Midpoint (if showWeights is true) -->
+                <ng-container *ngIf="showWeights()">
+                  <text
+                    [attr.x]="getMidpointX(i, j, i + 1, k)"
+                    [attr.y]="getMidpointY(i, j, i + 1, k)"
+                    text-anchor="middle"
+                    font-weight="bolder"
+                    font-size="12"
+                    fill="#ffffff"
+                  >
+                    {{ network.weights[i][j][k] | number}}
+                  </text>
+                </ng-container>
+              </ng-container>
             </ng-container>
           </ng-container>
         </ng-container>
-      </ng-container>
-    </ng-container>
 
-    <!-- Neurons and their values -->
-    <ng-container *ngFor="let layer of network.neurons; let i = index">
-      <ng-container *ngFor="let neuron of layer; let j = index">
-        <circle
-          [attr.cx]="getNeuronX(i, j)"
-          [attr.cy]="getNeuronY(i, j)"
-          [attr.r]="neuronRadius"
-          [attr.fill]="getCircleColor(i, j)"
-          [attr.border-color]="'#ffffff'"
-        />
+        <!-- Neurons and their values -->
+        <ng-container *ngFor="let layer of network.neurons; let i = index">
+          <ng-container *ngFor="let neuron of layer; let j = index">
+            <circle
+              [attr.cx]="getNeuronX(i, j)"
+              [attr.cy]="getNeuronY(i, j)"
+              [attr.r]="neuronRadius"
+              [attr.fill]="getCircleColor(i, j)"
+              [attr.border-color]="'#ffffff'"
+            />
 
-        <text
-          [attr.x]="getNeuronX(i, j)"
-          [attr.y]="getNeuronY(i, j) + 5"
-          text-anchor="middle"
-          font-weight="bolder"
-          font-size="12"
-          fill="#000000"
-        >
-          {{ neuron | number }}
-        </text>
-      </ng-container>
-    </ng-container>
-  </svg>
+            <text
+              [attr.x]="getNeuronX(i, j)"
+              [attr.y]="getNeuronY(i, j) + 5"
+              text-anchor="middle"
+              font-weight="bolder"
+              font-size="12"
+              fill="#000000"
+            >
+              {{ neuron | number : '0.0-2'}}
+            </text>
+          </ng-container>
+        </ng-container>
+      </svg>
+    </div>
+  </div>
 </div>
+
 <div *ngIf="playgroundMode()">
+  <ng-container *ngTemplateOutlet="layerSliders"></ng-container>
+  <ng-container *ngTemplateOutlet="io"></ng-container>
+  <ng-container *ngTemplateOutlet="playgroundButtons"></ng-container>
+</div>
+
+<div *ngIf="trainMode()">
+  <div class="w-full flex justify-content-between gap-6">
+    <app-pixel-canvas
+      class="col-4"
+      [initArray]="network.firstLayerBool"
+      [size]="7"
+    ></app-pixel-canvas>
+    <p-button
+      (onClick)="train()"
+      type="button"
+      label="Start Training"
+    ></p-button>
+    <app-pixel-canvas
+      class="col-4"
+      (outputArray)="evaluate($event)"
+      [size]="7"
+    ></app-pixel-canvas>
+  </div>
+</div>
+
+<ng-template #layerSliders>
   <div [formGroup]="form" class="w-full flex justify-content-between mb-5">
     <div class="flex flex-column align-items-center">
       <h3>Layer 1 neurons: {{ neuronsPerLayer()[0] }}</h3>
@@ -102,6 +137,9 @@
       />
     </div>
   </div>
+</ng-template>
+
+<ng-template #io>
   <div class="w-full flex flex-row">
     <div class="col-6 flex justify-content-center">
       <h3 class="highlight">
@@ -125,31 +163,12 @@
     </div>
     <div class="col-6 flex justify-content-center"></div>
   </div>
+</ng-template>
+
+<ng-template #playgroundButtons>
   <div class="w-full flex justify-content-center gap-6">
-    <p-button
-      (onClick)="randomizeInputs()"
-      label="randomize input"
-    >
-    </p-button>
+    <p-button (onClick)="randomizeInputs()" label="randomize input"> </p-button>
     <p-button (onClick)="randomizeWeights()" label="randomize weights">
     </p-button>
   </div>
-</div>
-
-<div *ngIf="trainMode()">
-  <div class="w-full flex justify-content-between gap-6">
-    <!-- <app-pixel-canvas
-      class="col-4"
-      [initArray]="network.firstLayerBool()"
-    ></app-pixel-canvas> -->
-    <!-- <p-button
-      (onClick)="trainOnButtonPress()"
-      type="button"
-      label="Start Training"
-    ></p-button> -->
-    <app-pixel-canvas
-      class="col-4"
-      (outputArray)="evaluate($event)"
-    ></app-pixel-canvas>
-  </div>
-</div>
+</ng-template>

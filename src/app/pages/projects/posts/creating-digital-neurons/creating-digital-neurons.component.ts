@@ -90,11 +90,4 @@ export class CreatingDigitalNeuronsComponent {
       false,
     ],
   ];
-
-  demo1Output = signal<number[]>([]);
-  processDemo1Output(array: number[]) {
-    this.demo1Output.set(array);
-  }
-
-  demo2Data = TRAINING_DATASET;
 }

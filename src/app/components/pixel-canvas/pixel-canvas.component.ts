@@ -2,18 +2,12 @@ import { CommonModule } from '@angular/common';
 import {
   ChangeDetectionStrategy,
   Component,
-  computed,
-  inject,
+  effect,
   input,
   OnInit,
   output,
 } from '@angular/core';
-import {
-  FormBuilder,
-  FormControl,
-  FormGroup,
-  ReactiveFormsModule,
-} from '@angular/forms';
+import { FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { ToggleButtonModule } from 'primeng/togglebutton';
 
 @Component({
@@ -21,43 +15,55 @@ import { ToggleButtonModule } from 'primeng/togglebutton';
   standalone: true,
   imports: [CommonModule, ToggleButtonModule, ReactiveFormsModule],
   templateUrl: './pixel-canvas.component.html',
-  styleUrl: './pixel-canvas.component.css',
+  styleUrls: ['./pixel-canvas.component.css'],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class PixelCanvasComponent implements OnInit {
   initArray = input<boolean[]>([]);
   showValues = input<boolean>(false);
-
-  size = 5;
-  inputSize = computed(() => this.size * this.size);
-  indexArray = computed(() => [...Array(this.size).keys()]);
+  size = input<number>(5); // Allow the size to be configurable
 
   outputArray = output<number[]>();
 
   form: FormGroup;
+  indexArray: number[] = [];
+
+  updatePixels = effect(() => {
+    if (this.initArray().length > 0) this.setPixels();
+  })
 
   constructor() {
-    var group = new FormGroup({});
-    for (var i = 0; i < this.inputSize(); i++) {
-      group.addControl(i.toString(), new FormControl<boolean>(false));
-    }
-    this.form = group;
+    this.form = new FormGroup({});
+  }
 
-    this.form.valueChanges.subscribe((_) => {
+  ngOnInit(): void {
+    this.initializeGrid();
+    if (this.initArray().length > 0) this.setPixels();
+  }
+
+  initializeGrid() {
+    // Dynamically generate the index array for grid dimensions
+    this.indexArray = Array.from({ length: this.size() }, (_, i) => i);
+
+    // Initialize form controls for each cell in the grid
+    const group: { [key: string]: FormControl } = {};
+    for (let i = 0; i < this.size() * this.size(); i++) {
+      group[i.toString()] = new FormControl<boolean>(false);
+    }
+    this.form = new FormGroup(group);
+
+    this.form.valueChanges.subscribe(() => {
       this.outputArray.emit(
         Object.values(this.form.getRawValue()).map((v) => (v ? 1 : 0))
       );
     });
   }
 
-  ngOnInit(): void {
-    if (this.initArray().length > 0) this.setPixels();
-  }
-
   setPixels() {
-    for (var i = 0; i < this.initArray().length; i++) {
-      this.form.get(i.toString())?.setValue(this.initArray()[i]);
-    }
+    // Populate initial values based on initArray
+    this.initArray().forEach((value, i) => {
+      this.form.get(i.toString())?.setValue(value);
+    });
     this.outputArray.emit(
       Object.values(this.form.getRawValue()).map((v) => (v ? 1 : 0))
     );

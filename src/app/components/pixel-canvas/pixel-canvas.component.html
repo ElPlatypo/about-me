@@ -1,13 +1,17 @@
 <div class="flex flex-column align-items-center">
-  <div class="pixel-grid" [formGroup]="form">
-    <div *ngFor="let x of indexArray()">
+  <div
+    class="pixel-grid"
+    [style.--grid-size]="size()"
+    [formGroup]="form"
+  >
+    <div *ngFor="let x of indexArray">
       <p-toggleButton
-        *ngFor="let y of indexArray()"
+        *ngFor="let y of indexArray"
         [onLabel]="showValues() ? '1' : ''"
         [offLabel]="showValues() ? '0' : ''"
-        formControlName="{{ x * this.size + y }}"
+        formControlName="{{ x * size() + y }}"
         [styleClass]="
-          !!form.get((x * this.size + y).toString())?.value ? 'black' : 'white'
+          form.get((x * size() + y).toString())?.value ? 'black' : 'white'
         "
       >
       </p-toggleButton>

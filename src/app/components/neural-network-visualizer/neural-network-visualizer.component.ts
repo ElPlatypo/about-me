@@ -1,9 +1,8 @@
 import { CommonModule } from '@angular/common';
 import {
   ChangeDetectionStrategy,
+  ChangeDetectorRef,
   Component,
-  computed,
-  effect,
   inject,
   input,
   OnInit,
@@ -14,7 +13,11 @@ import { FormBuilder, FormControl, ReactiveFormsModule } from '@angular/forms';
 import { ButtonModule } from 'primeng/button';
 import { SliderModule } from 'primeng/slider';
 import { PixelCanvasComponent } from '../pixel-canvas/pixel-canvas.component';
-import { Network, NeuralNetworkUtils } from './neural-network-utils';
+import {
+  Network,
+  NetworkOptions,
+  NeuralNetworkUtils,
+} from './neural-network-utils';
 
 @Component({
   selector: 'app-neural-network-visualizer',
@@ -32,49 +35,71 @@ import { Network, NeuralNetworkUtils } from './neural-network-utils';
 })
 export class NeuralNetworkVisualizerComponent implements OnInit {
   private fb = inject(FormBuilder);
-  @ViewChild(PixelCanvasComponent) pixelCanvas!: PixelCanvasComponent;
 
-  network = new Network();
+  network = new Network(inject(ChangeDetectorRef));
   neuronPositions: { x: number; y: number }[][] = [];
   lineColors: string[][][] = [];
   circleColors: string[][] = [];
 
-  layers = input.required<number>();
-  neuronsPerLayer = input.required<number[]>();
-  showWeights = input.required<boolean>();
+  showWeights = input<boolean>(false);
   playgroundMode = input<boolean>(false);
   trainMode = input<boolean>(false);
+  inputDemo = input<boolean>(false);
+  expandHeight = input<boolean>(false);
+
+  //network options
+  neuronsPerLayer = input<number[]>([1, 1, 1]);
+  neuronsActivations = input<string[]>(['relu', 'sigmoid']);
+  learningRate = input<number>(0.1);
+  epochs = input<number>(50);
+  batchSize = input<number>(50);
 
   baseWidth = 900; // 3 units wide
   baseHeight = 600; // 2 units high
   neuronRadius = 30;
+  minNeuronRadius = 15; // Minimum radius for neurons
 
   loading = signal<boolean>(true);
 
   form: any = null;
 
   ngOnInit(): void {
-    //setup network
-    this.network.layers = this.layers();
-    this.network.neuronsPerLayer = this.neuronsPerLayer();
-    this.network.initializeNeurons();
-    this.network.initializeWeights();
-    this.network.calculateNeurons();
-
-    //calculate graphics
-    this.updateGraphics();
-
     this.network.updateGraphics.subscribe((v) => {
       if (v) {
         this.updateGraphics();
       }
     });
 
+    this.network.computeColors.subscribe((v) => {
+      if (v) {
+        this.computeColors();
+      }
+    });
+
+    //setup network
+    const opts: NetworkOptions = {
+      neuronsPerLayer: this.neuronsPerLayer(),
+      neuronsActivations: this.neuronsActivations(),
+      learningRate: this.learningRate(),
+      epochs: this.epochs(),
+      batchSize: this.batchSize(),
+    };
+    //this.network.layers = this.layers();
+    //this.network.neuronsPerLayer = this.neuronsPerLayer();
+    //this.network.batchSize = 999;
+    //this.network.epochs = 100;
+    //this.network.learningRate = 0.01;
+    //this.network.neuronsActivations = ['relu', 'sigmoid'];
+    this.network.opts = opts;
+    this.network.initializeNeurons();
+    this.network.initializeWeights();
+    this.network.calculateNeurons();
+
     this.createForm();
     this.loading.set(false);
   }
 
-  updateGraphics(){
+  updateGraphics() {
     this.computeNeuronPositions();
     this.computeColors();
   }
@@ -95,26 +120,48 @@ export class NeuralNetworkVisualizerComponent implements OnInit {
     this.computeColors();
   }
 
+  train() {
+    const trainData = NeuralNetworkUtils.generate7by7Dataset();
+    this.network.trainingData = trainData;
+    this.network.trainNetwork(10);
+  }
+
   private createForm() {
     this.form = this.fb.group({
-      layer1Neurons: new FormControl(this.neuronsPerLayer()[0]),
-      layer2Neurons: new FormControl(this.neuronsPerLayer()[1]),
-      layer3Neurons: new FormControl(this.neuronsPerLayer()[2]),
+      layer1Neurons: new FormControl(this.neuronsPerLayer()![0]),
+      layer2Neurons: new FormControl(this.neuronsPerLayer()![1]),
+      layer3Neurons: new FormControl(this.neuronsPerLayer()![2]),
     });
   }
 
   computeNeuronPositions() {
     const effectiveWidth = this.baseWidth - this.neuronRadius * 2;
-    const effectiveHeight = this.baseHeight - this.neuronRadius * 2;
-    const layerCount = this.network.neurons.length;
+    let effectiveHeight = this.baseHeight - this.neuronRadius * 2;
 
+    if (this.expandHeight()) {
+      // Dynamically calculate height based on the layer with the most neurons
+      this.neuronRadius = Math.min(this.neuronRadius, this.minNeuronRadius);
+      const maxNeuronsInLayer = Math.max(
+        ...this.network.neurons.map((layer) => layer.length)
+      );
+      effectiveHeight = this.neuronRadius * 2 * (maxNeuronsInLayer + 1); // Additional space to avoid overlap
+
+      // Update baseHeight if expandHeight mode is active
+      this.baseHeight = effectiveHeight + this.neuronRadius * 2;
+    }
+
+    const layerCount = this.network.neurons.length;
     this.neuronPositions = [];
 
     for (let i = 0; i < layerCount; i++) {
       const layer = this.network.neurons[i];
       const layerPositions: { x: number; y: number }[] = [];
+
+      // Adjust x-position to stretch neurons across the entire width
+      const x = (effectiveWidth / (layerCount - 1)) * i + this.neuronRadius;
+
       for (let j = 0; j < layer.length; j++) {
-        const x = this.neuronRadius + (effectiveWidth / (layerCount - 1)) * i;
+        // Calculate y-position based on the number of neurons in the layer
         const y =
           this.neuronRadius + (effectiveHeight / (layer.length + 1)) * (j + 1);
         layerPositions.push({ x, y });
@@ -163,7 +210,6 @@ export class NeuralNetworkVisualizerComponent implements OnInit {
     }
   }
 
-  // Compute the color for a line based on the weight
   computeLineColor(
     layerIndex: number,
     neuronIndex: number,
@@ -171,10 +217,18 @@ export class NeuralNetworkVisualizerComponent implements OnInit {
   ): string {
     const weight =
       this.network.weights[layerIndex][neuronIndex][nextNeuronIndex];
-    const sigmoidValue = NeuralNetworkUtils.sigmoid(weight, 2);
-    const red = Math.floor(255 * (1 - sigmoidValue));
-    const green = Math.floor(255 * sigmoidValue);
-    return `rgb(${red}, ${green}, 0)`;
+
+    // Normalize the weight to the range [-1, 1]
+    const normalizedWeight = Math.tanh(weight);
+
+    // Determine color components
+    const red = normalizedWeight < 0 ? Math.floor(255 * -normalizedWeight) : 0; // Red for negative weights
+    const green = normalizedWeight > 0 ? Math.floor(255 * normalizedWeight) : 0; // Green for positive weights
+
+    // Set alpha based on the absolute value of the normalized weight
+    const alpha = Math.abs(normalizedWeight); // Range [0, 1], closer to zero is more transparent
+
+    return `rgba(${red}, ${green}, 0, ${alpha})`;
   }
 
   // Compute the color for a circle based on the neuron value
@@ -223,114 +277,4 @@ export class NeuralNetworkVisualizerComponent implements OnInit {
 
     return (y1 + y2) / 2 - 10; // Slightly above the midpoint
   }
-
-  //// Shuffle function to randomly reorder the training data
-  //flattenAndShuffleTrainingData() {
-  //  const flattenedData = [];
-  //
-  //  // Flatten trainingData into a single array of examples
-  //  for (const example of this.trainingData()) {
-  //    const targetDigit = parseInt(Object.keys(example)[0], 10); // Get the digit as a number
-  //    for (const inputPixels of example[targetDigit]) {
-  //      // Each item now includes both the input pixels and the target digit
-  //      flattenedData.push({ targetDigit, inputPixels });
-  //    }
-  //  }
-  //
-  //  // Shuffle the flattened array
-  //  for (let i = flattenedData.length - 1; i > 0; i--) {
-  //    const j = Math.floor(Math.random() * (i + 1));
-  //    [flattenedData[i], flattenedData[j]] = [
-  //      flattenedData[j],
-  //      flattenedData[i],
-  //    ];
-  //  }
-  //
-  //  return flattenedData;
-  //}
-  //
-  //async train(delay: number = 0) {
-  //  // Prepare and shuffle the training data before training
-  //  const shuffledData = this.flattenAndShuffleTrainingData();
-  //
-  //  for (let epoch = 0; epoch < this.epochs(); epoch++) {
-  //    console.log(`Epoch ${epoch + 1}/${this.epochs()}`);
-  //
-  //    // Loop through each shuffled example
-  //    for (const example of shuffledData) {
-  //      const { targetDigit, inputPixels } = example;
-  //
-  //      // Forward pass: Set input layer and calculate outputs
-  //      this.initializeNeuronsWithValues(inputPixels);
-  //      this.pixelCanvas.setPixels();
-  //      this.calculateNeurons();
-  //
-  //      // Convert the target digit to a target output array
-  //      const targetOutput = Array(10).fill(0);
-  //      targetOutput[targetDigit] = 1; // Set the correct output for the target digit
-  //
-  //      // Backpropagation: Calculate errors and adjust weights
-  //      this.backpropagateError(targetOutput);
-  //
-  //      // Add delay between each pass
-  //      if (delay > 0) {
-  //        await this.sleep(delay);
-  //      }
-  //    }
-  //  }
-  //  console.log('Training complete');
-  //}
-  //
-  //sleep(ms: number) {
-  //  return new Promise((resolve) => setTimeout(resolve, ms));
-  //}
-  //
-  //private backpropagateError(targetOutput: number[]) {
-  //  const neurons = this.neurons();
-  //  const weights = this.weights();
-  //  const learningRate = this.learningRate();
-  //
-  //  // Initialize the error storage correctly
-  //  let errors: number[][] = Array.from({ length: neurons.length }, () => []);
-  //
-  //  // Calculate errors for the output layer
-  //  for (let j = 0; j < neurons[neurons.length - 1].length; j++) {
-  //    const output = neurons[neurons.length - 1][j];
-  //    const error = (targetOutput[j] - output) * output * (1 - output); // Derivative of sigmoid
-  //    errors[neurons.length - 1][j] = error;
-  //  }
-  //
-  //  // Backpropagate errors to hidden layers
-  //  for (let i = neurons.length - 2; i > 0; i--) {
-  //    for (let j = 0; j < neurons[i].length; j++) {
-  //      let sumError = 0;
-  //      for (let k = 0; k < neurons[i + 1].length; k++) {
-  //        sumError += errors[i + 1][k] * weights[i][j][k];
-  //      }
-  //      errors[i][j] = sumError * neurons[i][j] * (1 - neurons[i][j]);
-  //    }
-  //  }
-  //
-  //  // Update weights based on errors
-  //  for (let i = 0; i < weights.length; i++) {
-  //    for (let j = 0; j < weights[i].length; j++) {
-  //      for (let k = 0; k < weights[i][j].length; k++) {
-  //        weights[i][j][k] += learningRate * errors[i + 1][k] * neurons[i][j];
-  //      }
-  //    }
-  //  }
-  //
-  //  // Ensure weights update
-  //  this.weights.set([...weights]);
-  //}
-  //
-  //async trainOnButtonPress() {
-  //  this.randomizeAndRecalculate(); // Reset initial weights and neuron values
-  //  this.train(100);
-  //}
-
-  //processTrainDemoOutput(array: boolean[]) {
-  //  this.initializeNeuronsWithValues(array.map((v) => (v === true ? 1 : 0)));
-  //  this.calculateNeurons();
-  //}
 }
