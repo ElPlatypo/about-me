@@ -3,6 +3,7 @@ import {
   ChangeDetectionStrategy,
   ChangeDetectorRef,
   Component,
+  computed,
   inject,
   input,
   OnInit,
@@ -18,6 +19,8 @@ import {
   NetworkOptions,
   NeuralNetworkUtils,
 } from './neural-network-utils';
+import { ProgressBarModule } from 'primeng/progressbar';
+import { ProgressSpinnerModule } from 'primeng/progressspinner';
 
 @Component({
   selector: 'app-neural-network-visualizer',
@@ -28,6 +31,8 @@ import {
     SliderModule,
     ReactiveFormsModule,
     PixelCanvasComponent,
+    ProgressBarModule,
+    ProgressSpinnerModule,
   ],
   templateUrl: './neural-network-visualizer.component.html',
   styleUrl: './neural-network-visualizer.component.css',
@@ -35,17 +40,17 @@ import {
 })
 export class NeuralNetworkVisualizerComponent implements OnInit {
   private fb = inject(FormBuilder);
+  cdRef = inject(ChangeDetectorRef);
 
-  network = new Network(inject(ChangeDetectorRef));
-  neuronPositions: { x: number; y: number }[][] = [];
-  lineColors: string[][][] = [];
-  circleColors: string[][] = [];
+  network = new Network(this.cdRef);
 
+  //general options
   showWeights = input<boolean>(false);
   playgroundMode = input<boolean>(false);
   trainMode = input<boolean>(false);
   inputDemo = input<boolean>(false);
   expandHeight = input<boolean>(false);
+  loading = signal<boolean>(true);
 
   //network options
   neuronsPerLayer = input<number[]>([1, 1, 1]);
@@ -54,26 +59,38 @@ export class NeuralNetworkVisualizerComponent implements OnInit {
   epochs = input<number>(50);
   batchSize = input<number>(50);
 
-  baseWidth = 900; // 3 units wide
-  baseHeight = 600; // 2 units high
-  neuronRadius = 30;
-  minNeuronRadius = 15; // Minimum radius for neurons
-
-  loading = signal<boolean>(true);
+  lossForFraph = signal<any>({
+    datasets: [
+      {
+        label: 'Loss Value',
+        data: [],
+      },
+    ],
+  });
+  trainprogress: number = 0;
 
   form: any = null;
 
   ngOnInit(): void {
-    this.network.updateGraphics.subscribe((v) => {
-      if (v) {
-        this.updateGraphics();
+    this.network.trainLoss.subscribe((loss) => {
+      let labels: string[] = [];
+      for (var i = 0; i < loss.length; i++) {
+        labels.push('Epoch ' + i);
       }
-    });
-
-    this.network.computeColors.subscribe((v) => {
-      if (v) {
-        this.computeColors();
-      }
+      let data = {
+        labels: labels,
+        datasets: [
+          {
+            label: 'Loss Value',
+            data: loss,
+            fill: false,
+          },
+        ],
+      };
+      this.lossForFraph.set(data);
+      this.trainprogress = Math.round(
+        (loss.length / this.network.opts.epochs) * 100
+      );
     });
 
     //setup network
@@ -84,46 +101,51 @@ export class NeuralNetworkVisualizerComponent implements OnInit {
       epochs: this.epochs(),
       batchSize: this.batchSize(),
     };
-    //this.network.layers = this.layers();
-    //this.network.neuronsPerLayer = this.neuronsPerLayer();
-    //this.network.batchSize = 999;
-    //this.network.epochs = 100;
-    //this.network.learningRate = 0.01;
-    //this.network.neuronsActivations = ['relu', 'sigmoid'];
+
     this.network.opts = opts;
     this.network.initializeNeurons();
     this.network.initializeWeights();
     this.network.calculateNeurons();
+
+    this.updateGraphics();
 
     this.createForm();
     this.loading.set(false);
   }
 
   updateGraphics() {
-    this.computeNeuronPositions();
-    this.computeColors();
+    this.network.computeNeuronPositions();
+    this.network.computeColors();
+  }
+
+  changeNeuronsForLayer(amount: number | undefined, layer: number) {
+    this.network.changeNeuronsForLayer(amount, layer);
+    this.updateGraphics();
   }
 
   evaluate(input: number[]) {
     this.network.evaluate(input);
-    this.computeColors();
+    this.network.computeColors();
+    this.cdRef.detectChanges();
   }
 
   randomizeInputs() {
-    this.network.randomizeAndRecalculate();
-    this.computeColors();
+    this.network.initializeNeurons();
+    this.network.calculateNeurons();
+    this.network.computeColors();
   }
 
   randomizeWeights() {
     this.network.initializeWeights();
     this.network.calculateNeurons();
-    this.computeColors();
+    this.network.computeColors();
   }
 
   train() {
     const trainData = NeuralNetworkUtils.generate7by7Dataset();
     this.network.trainingData = trainData;
-    this.network.trainNetwork(10);
+    this.network.trainNetwork(200);
+    this.trainprogress = 1;
   }
 
   private createForm() {
@@ -134,109 +156,12 @@ export class NeuralNetworkVisualizerComponent implements OnInit {
     });
   }
 
-  computeNeuronPositions() {
-    const effectiveWidth = this.baseWidth - this.neuronRadius * 2;
-    let effectiveHeight = this.baseHeight - this.neuronRadius * 2;
-
-    if (this.expandHeight()) {
-      // Dynamically calculate height based on the layer with the most neurons
-      this.neuronRadius = Math.min(this.neuronRadius, this.minNeuronRadius);
-      const maxNeuronsInLayer = Math.max(
-        ...this.network.neurons.map((layer) => layer.length)
-      );
-      effectiveHeight = this.neuronRadius * 2 * (maxNeuronsInLayer + 1); // Additional space to avoid overlap
-
-      // Update baseHeight if expandHeight mode is active
-      this.baseHeight = effectiveHeight + this.neuronRadius * 2;
-    }
-
-    const layerCount = this.network.neurons.length;
-    this.neuronPositions = [];
-
-    for (let i = 0; i < layerCount; i++) {
-      const layer = this.network.neurons[i];
-      const layerPositions: { x: number; y: number }[] = [];
-
-      // Adjust x-position to stretch neurons across the entire width
-      const x = (effectiveWidth / (layerCount - 1)) * i + this.neuronRadius;
-
-      for (let j = 0; j < layer.length; j++) {
-        // Calculate y-position based on the number of neurons in the layer
-        const y =
-          this.neuronRadius + (effectiveHeight / (layer.length + 1)) * (j + 1);
-        layerPositions.push({ x, y });
-      }
-      this.neuronPositions.push(layerPositions);
-    }
-  }
-
   getNeuronX(layerIndex: number, neuronIndex: number): number {
-    return this.neuronPositions[layerIndex][neuronIndex].x;
+    return this.network.neuronPositions[layerIndex][neuronIndex].x;
   }
 
   getNeuronY(layerIndex: number, neuronIndex: number): number {
-    return this.neuronPositions[layerIndex][neuronIndex].y;
-  }
-
-  // Compute colors for lines and circles only once
-  computeColors() {
-    const layers = this.network.neurons;
-
-    this.lineColors = [];
-    this.circleColors = [];
-
-    // Precompute line colors based on weights
-    for (let i = 0; i < layers.length - 1; i++) {
-      const layerColors: string[][] = [];
-      for (let j = 0; j < layers[i].length; j++) {
-        const neuronColors: string[] = [];
-        for (let k = 0; k < layers[i + 1].length; k++) {
-          // Directly call getLineColor to compute color based on weights
-          neuronColors.push(this.computeLineColor(i, j, k));
-        }
-        layerColors.push(neuronColors);
-      }
-      this.lineColors.push(layerColors);
-    }
-
-    // Precompute circle colors based on neuron values
-    for (let i = 0; i < layers.length; i++) {
-      const neuronColors: string[] = [];
-      for (let j = 0; j < layers[i].length; j++) {
-        // Directly call getCircleColor to compute color based on neuron values
-        neuronColors.push(this.computeCircleColor(i, j));
-      }
-      this.circleColors.push(neuronColors);
-    }
-  }
-
-  computeLineColor(
-    layerIndex: number,
-    neuronIndex: number,
-    nextNeuronIndex: number
-  ): string {
-    const weight =
-      this.network.weights[layerIndex][neuronIndex][nextNeuronIndex];
-
-    // Normalize the weight to the range [-1, 1]
-    const normalizedWeight = Math.tanh(weight);
-
-    // Determine color components
-    const red = normalizedWeight < 0 ? Math.floor(255 * -normalizedWeight) : 0; // Red for negative weights
-    const green = normalizedWeight > 0 ? Math.floor(255 * normalizedWeight) : 0; // Green for positive weights
-
-    // Set alpha based on the absolute value of the normalized weight
-    const alpha = Math.abs(normalizedWeight); // Range [0, 1], closer to zero is more transparent
-
-    return `rgba(${red}, ${green}, 0, ${alpha})`;
-  }
-
-  // Compute the color for a circle based on the neuron value
-  computeCircleColor(layerIndex: number, neuronIndex: number): string {
-    const weight = this.network.neurons[layerIndex][neuronIndex];
-    const red = Math.floor(255 * (1 - weight));
-    const green = Math.floor(255 * weight);
-    return `rgb(${red}, ${green}, 0)`;
+    return this.network.neuronPositions[layerIndex][neuronIndex].y;
   }
 
   // Access precomputed line color
@@ -245,12 +170,12 @@ export class NeuralNetworkVisualizerComponent implements OnInit {
     neuronIndex: number,
     nextNeuronIndex: number
   ): string {
-    return this.lineColors[layerIndex][neuronIndex][nextNeuronIndex];
+    return this.network.lineColors[layerIndex][neuronIndex][nextNeuronIndex];
   }
 
   // Access precomputed circle color
   getCircleColor(layerIndex: number, neuronIndex: number): string {
-    return this.circleColors[layerIndex][neuronIndex];
+    return this.network.circleColors[layerIndex][neuronIndex];
   }
 
   // Calculate the midpoint for the weights label

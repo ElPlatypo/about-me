@@ -21,7 +21,8 @@ import { ToggleButtonModule } from 'primeng/togglebutton';
 export class PixelCanvasComponent implements OnInit {
   initArray = input<boolean[]>([]);
   showValues = input<boolean>(false);
-  size = input<number>(5); // Allow the size to be configurable
+  size = input<number>(5);
+  disabled = input<boolean>(true);
 
   outputArray = output<number[]>();
 
@@ -32,6 +33,10 @@ export class PixelCanvasComponent implements OnInit {
     if (this.initArray().length > 0) this.setPixels();
   })
 
+  disable = effect(() => {
+    if (this.disabled()) this.form.disable()
+  })
+
   constructor() {
     this.form = new FormGroup({});
   }
@@ -39,6 +44,8 @@ export class PixelCanvasComponent implements OnInit {
   ngOnInit(): void {
     this.initializeGrid();
     if (this.initArray().length > 0) this.setPixels();
+
+    if (this.disabled()) this.form.disable()
   }
 
   initializeGrid() {

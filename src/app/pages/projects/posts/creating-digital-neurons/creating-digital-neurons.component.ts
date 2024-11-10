@@ -1,5 +1,8 @@
-import { Component, signal } from '@angular/core';
-import { TRAINING_DATASET } from './dataset';
+import {
+  Component,
+  ViewChild
+} from '@angular/core';
+import { NeuralNetworkVisualizerComponent } from '../../../../components/neural-network-visualizer/neural-network-visualizer.component';
 
 @Component({
   selector: 'app-creating-digital-neurons',
@@ -7,6 +10,8 @@ import { TRAINING_DATASET } from './dataset';
   styleUrl: './creating-digital-neurons.component.css',
 })
 export class CreatingDigitalNeuronsComponent {
+  @ViewChild('trainDemoNetwork') network!: NeuralNetworkVisualizerComponent;
+
   canvasInits = [
     [
       false,
@@ -90,4 +95,39 @@ export class CreatingDigitalNeuronsComponent {
       false,
     ],
   ];
+
+  lossChartOpts = {
+    maintainAspectRatio: false,
+    aspectRatio: 0.4,
+    animation: {
+      duration: 0,
+    },
+    plugins: {
+      legend: {
+        labels: {
+          color: 'white',
+        },
+      },
+    },
+    scales: {
+      x: {
+        ticks: {
+          color: '#ffffff',
+        },
+        grid: {
+          color: '#ffffff',
+          drawBorder: false,
+        },
+      },
+      y: {
+        ticks: {
+          color: '#ffffff',
+        },
+        grid: {
+          color: '#ffffff',
+          drawBorder: false,
+        },
+      },
+    },
+  };
 }

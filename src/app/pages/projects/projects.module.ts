@@ -10,6 +10,7 @@ import { ProjectsComponent } from './projects.component';
 import { NeuralNetworkVisualizerComponent } from '../../components/neural-network-visualizer/neural-network-visualizer.component';
 import { CreatingDigitalNeuronsComponent } from './posts/creating-digital-neurons/creating-digital-neurons.component';
 import { PixelCanvasComponent } from '../../components/pixel-canvas/pixel-canvas.component';
+import { ChartModule } from 'primeng/chart';
 
 @NgModule({
   imports: [
@@ -19,7 +20,8 @@ import { PixelCanvasComponent } from '../../components/pixel-canvas/pixel-canvas
     AvatarModule,
     ButtonModule,
     NeuralNetworkVisualizerComponent,
-    PixelCanvasComponent
+    PixelCanvasComponent,
+    ChartModule
   ],
   declarations: [ProjectsComponent, PostComponent, CreatingDigitalNeuronsComponent],
   exports: [],

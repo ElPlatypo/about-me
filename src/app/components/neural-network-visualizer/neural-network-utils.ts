@@ -104,19 +104,31 @@ export class NetworkOptions {
   batchSize: number = 0;
 }
 
+export class NetworkGraphicOptions {
+  baseWidth: number = 900; // 3 units wide
+  baseHeight: number = 600; // 2 units high
+  neuronRadius: number = 30;
+  minNeuronRadius: number = 15;
+  expanded: boolean = false;
+}
+
 export class Network {
   cdRef: ChangeDetectorRef;
   opts: NetworkOptions = new NetworkOptions();
+  gOpts: NetworkGraphicOptions = new NetworkGraphicOptions();
   trainingData: { input: number[]; label: number[] }[] = [];
 
   //core values
   neurons: number[][] = [];
   weights: number[][][] = [];
 
-  updateGraphics = new Subject<boolean>();
-  computeColors = new Subject<boolean>();
+  //graphics
+  neuronPositions: { x: number; y: number }[][] = [];
+  lineColors: string[][][] = [];
+  circleColors: string[][] = [];
+
   firstLayerBool: boolean[] = [];
-  trainLoss: number[] = [];
+  trainLoss = new Subject<number[]>();
 
   constructor(cdRef: ChangeDetectorRef) {
     this.cdRef = cdRef;
@@ -128,13 +140,113 @@ export class Network {
     this.calculateNeurons();
   }
 
+  computeNeuronPositions() {
+    const effectiveWidth = this.gOpts.baseWidth - this.gOpts.neuronRadius * 2;
+    let effectiveHeight = this.gOpts.baseHeight - this.gOpts.neuronRadius * 2;
+
+    if (this.gOpts.expanded) {
+      // Dynamically calculate height based on the layer with the most neurons
+      this.gOpts.neuronRadius = Math.min(
+        this.gOpts.neuronRadius,
+        this.gOpts.minNeuronRadius
+      );
+      const maxNeuronsInLayer = Math.max(
+        ...this.neurons.map((layer) => layer.length)
+      );
+      effectiveHeight = this.gOpts.neuronRadius * 2 * (maxNeuronsInLayer + 1); // Additional space to avoid overlap
+
+      // Update baseHeight if expandHeight mode is active
+      this.gOpts.baseHeight = effectiveHeight + this.gOpts.neuronRadius * 2;
+    }
+
+    const layerCount = this.neurons.length;
+    this.neuronPositions = [];
+
+    for (let i = 0; i < layerCount; i++) {
+      const layer = this.neurons[i];
+      const layerPositions: { x: number; y: number }[] = [];
+
+      // Adjust x-position to stretch neurons across the entire width
+      const x =
+        (effectiveWidth / (layerCount - 1)) * i + this.gOpts.neuronRadius;
+
+      for (let j = 0; j < layer.length; j++) {
+        // Calculate y-position based on the number of neurons in the layer
+        const y =
+          this.gOpts.neuronRadius +
+          (effectiveHeight / (layer.length + 1)) * (j + 1);
+        layerPositions.push({ x, y });
+      }
+      this.neuronPositions.push(layerPositions);
+    }
+  }
+
+  // Compute colors for lines and circles only once
+  computeColors() {
+    const layers = this.neurons;
+
+    this.lineColors = [];
+    this.circleColors = [];
+
+    // Precompute line colors based on weights
+    for (let i = 0; i < layers.length - 1; i++) {
+      const layerColors: string[][] = [];
+      for (let j = 0; j < layers[i].length; j++) {
+        const neuronColors: string[] = [];
+        for (let k = 0; k < layers[i + 1].length; k++) {
+          // Directly call getLineColor to compute color based on weights
+          neuronColors.push(this.computeLineColor(i, j, k));
+        }
+        layerColors.push(neuronColors);
+      }
+      this.lineColors.push(layerColors);
+    }
+
+    // Precompute circle colors based on neuron values
+    for (let i = 0; i < layers.length; i++) {
+      const neuronColors: string[] = [];
+      for (let j = 0; j < layers[i].length; j++) {
+        // Directly call getCircleColor to compute color based on neuron values
+        neuronColors.push(this.computeCircleColor(i, j));
+      }
+      this.circleColors.push(neuronColors);
+    }
+  }
+
+  computeLineColor(
+    layerIndex: number,
+    neuronIndex: number,
+    nextNeuronIndex: number
+  ): string {
+    const weight = this.weights[layerIndex][neuronIndex][nextNeuronIndex];
+
+    // Normalize the weight to the range [-1, 1]
+    const normalizedWeight = Math.tanh(weight);
+
+    // Determine color components
+    const red = normalizedWeight < 0 ? Math.floor(255 * -normalizedWeight) : 0; // Red for negative weights
+    const green = normalizedWeight > 0 ? Math.floor(255 * normalizedWeight) : 0; // Green for positive weights
+
+    // Set alpha based on the absolute value of the normalized weight
+    const alpha = Math.abs(normalizedWeight); // Range [0, 1], closer to zero is more transparent
+
+    return `rgba(${red}, ${green}, 0, ${alpha})`;
+  }
+
+  // Compute the color for a circle based on the neuron value
+  computeCircleColor(layerIndex: number, neuronIndex: number): string {
+    const weight = this.neurons[layerIndex][neuronIndex];
+    const red = Math.floor(255 * (1 - weight));
+    const green = Math.floor(255 * weight);
+    return `rgb(${red}, ${green}, 0)`;
+  }
+
   changeNeuronsForLayer(amount: number | undefined, layer: number) {
     if (this.opts.neuronsPerLayer[layer] === amount) return;
     this.opts.neuronsPerLayer[layer] = amount ?? 1;
     this.initializeNeurons();
     this.initializeWeights();
     this.calculateNeurons();
-    this.updateGraphics.next(true);
   }
 
   // Initialize neurons for the first layer with random values
@@ -147,20 +259,6 @@ export class Network {
         return Array.from({ length: neuronsCount }, () => 0);
       }
     });
-    this.updateGraphics.next(true);
-  }
-
-  initializeNeuronsWithValues(firstLayerValues: number[]) {
-    this.neurons = this.opts.neuronsPerLayer.map((neuronsCount, index) => {
-      if (index === 0) {
-        // First layer: Use provided values or initialize randomly
-        return firstLayerValues;
-      } else {
-        // Subsequent layers: Empty, to be calculated later
-        return Array.from({ length: neuronsCount }, () => 0);
-      }
-    });
-    this.updateGraphics.next(true);
   }
 
   // Initialize weights with random values between -1 and 1
@@ -179,7 +277,6 @@ export class Network {
       newWeights.push(layerWeights);
     }
     this.weights = newWeights;
-    this.computeColors.next(true);
   }
 
   calculateNeurons() {
@@ -200,21 +297,10 @@ export class Network {
         }
       }
     }
-    this.computeColors.next(true);
-  }
-
-  randomizeAndRecalculate() {
-    // Reinitialize the first layer with new random values
-    this.neurons[0] = Array.from({ length: this.opts.neuronsPerLayer[0] }, () =>
-      Math.random()
-    );
-
-    // Recalculate neurons in subsequent layers
-    this.calculateNeurons();
   }
 
   async trainNetwork(delay: number = 0) {
-    this.trainLoss = [];
+    var trainLoss = [];
     for (let epoch = 0; epoch < this.opts.epochs; epoch++) {
       console.log('Started epoch: ' + (epoch + 1) + '/' + this.opts.epochs);
       let batch = 0;
@@ -239,11 +325,13 @@ export class Network {
 
         batch++;
         if (delay > 0 && batch % this.opts.batchSize === 0) {
+          this.computeColors();
           this.cdRef.detectChanges();
           await new Promise((resolve) => setTimeout(resolve, delay));
         }
       }
-      this.trainLoss.push(totalEpochLoss);
+      trainLoss.push(totalEpochLoss);
+      this.trainLoss.next(trainLoss);
       console.log('Loss: ' + totalEpochLoss);
     }
     console.log('Training done');
@@ -303,36 +391,11 @@ export class Network {
         // Update weights for the layer
         for (let k = 0; k < this.weights[layer][j].length; k++) {
           this.weights[layer][j][k] +=
-            this.opts.learningRate * deltas[layer + 1][k] * this.neurons[layer][j];
+            this.opts.learningRate *
+            deltas[layer + 1][k] *
+            this.neurons[layer][j];
         }
       }
     }
-  }
-
-  // Map the weight to a color in the gradient
-  getLineColor(
-    layerIndex: number,
-    neuronIndex: number,
-    nextNeuronIndex: number
-  ): string {
-    const weight = this.weights[layerIndex][neuronIndex][nextNeuronIndex];
-
-    // Apply the sigmoid function to map the weight (-1 to 1) to a value between 0 and 1
-    const sigmoidValue = NeuralNetworkUtils.sigmoid(weight, 2); // '1' here controls the steepness of the sigmoid curve
-
-    // Use the sigmoid value to generate red and green color values
-    const red = Math.floor(255 * (1 - sigmoidValue)); // Red decreases as sigmoid value increases
-    const green = Math.floor(255 * sigmoidValue); // Green increases as sigmoid value increases
-
-    return `rgb(${red}, ${green}, 0)`; // Return the color in rgb format
-  }
-
-  getCircleColor(layerIndex: number, neuronIndex: number): string {
-    const weight = this.neurons[layerIndex][neuronIndex];
-
-    const red = Math.floor(255 * (1 - weight)); // Red decreases as sigmoid value increases
-    const green = Math.floor(255 * weight); // Green increases as sigmoid value increases
-
-    return `rgb(${red}, ${green}, 0)`; // Return the color in rgb format
   }
 }
