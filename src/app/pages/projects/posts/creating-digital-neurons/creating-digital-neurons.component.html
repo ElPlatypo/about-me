@@ -233,14 +233,14 @@
 </div>
 
 <div class="grid flex align-items-center">
-  <div class="col-3 custom-card m-0">
-    <span>Train input</span>
+  <div class="col-12 md:col-3 custom-card m-0">
+    <span>Train input visualizer</span>
     <app-pixel-canvas
       class="col-4"
       [initArray]="trainDemoNetwork.network.firstLayerBool"
       [size]="7"
     ></app-pixel-canvas>
-    <span>Test Network</span>
+    <span>Test network</span>
     <span
       *ngIf="
         trainDemoNetwork.trainprogress() > 0 &&
@@ -261,13 +261,13 @@
   </div>
   <app-neural-network-visualizer
     #trainDemoNetwork
-    class="col-6"
+    class="col-12 md:col-6"
     [neuronsPerLayer]="[49, 20, 10]"
     [trainMode]="true"
     [batchSize]="300"
     [expandHeight]="false"
   ></app-neural-network-visualizer>
-  <div class="col-3 custom-card m-0">
+  <div class="col-12 md:col-3 custom-card m-0">
     <p-chart
       type="line"
       [data]="trainDemoNetwork.lossForFraph()"

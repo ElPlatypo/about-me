@@ -47,7 +47,10 @@ export class NeuralNetworkUtils {
       }
     }
 
-    // Shuffle the dataset using Fisher-Yates algorithm
+    return this.ShuffleData(dataset);
+  }
+
+  static ShuffleData(dataset: { input: number[]; label: number[] }[]) {
     for (let i = dataset.length - 1; i > 0; i--) {
       const j = Math.floor(Math.random() * (i + 1));
       // Swap elements i and j
@@ -305,7 +308,11 @@ export class Network {
       console.log('Started epoch: ' + (epoch + 1) + '/' + this.opts.epochs);
       let batch = 0;
       let totalEpochLoss = 0;
-      for (let sample of this.trainingData) {
+
+      //shuffle data
+      let data = NeuralNetworkUtils.ShuffleData(this.trainingData);
+
+      for (let sample of data) {
         // Forward pass
         this.evaluate(sample.input);
 
